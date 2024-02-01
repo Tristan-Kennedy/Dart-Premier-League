@@ -4,7 +4,7 @@ from PySide6.QtCore import Qt, QPoint
 import math
 
 class Dartboard(QWidget):
-    def __init__(self):
+    def __init__(self, scoreboard):
         super().__init__()
 
         self.setGeometry(300, 300, 600, 600)
@@ -14,6 +14,8 @@ class Dartboard(QWidget):
         self.clicked_point = None
 
         self.setMouseTracking(True)
+        
+        self.scoreboard = scoreboard
 
     # This entire function just draws the dart board
     def paintEvent(self, event):
@@ -98,8 +100,8 @@ class Dartboard(QWidget):
             elif distance > radius * 0.9:
                 score *= 2
 
-            # Change this code from print to modify what the function of clicking on the sections is.
-            print('Clicked on section with point value:', score)
+            # Change or add to this code to modify what the function of clicking on the sections is.
+            self.scoreboard.update_score(score)
             self.clicked_point = None
 
     def mouseMoveEvent(self, event):
