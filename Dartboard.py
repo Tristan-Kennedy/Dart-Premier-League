@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QWidget
-from PySide6.QtGui import QPainter, QPen, QBrush, QPainterPath, QColor
-from PySide6.QtCore import Qt, QPoint
+from PySide6.QtGui import QPainter, QPen, QBrush, QPainterPath, QColor, QFont
+from PySide6.QtCore import Qt, QPoint, QRectF
 import math
 
 class Dartboard(QWidget):
@@ -32,36 +32,55 @@ class Dartboard(QWidget):
         green = QColor('#309F6A')
         red = QColor('#E3292E')
 
+        # Draw outer circle
+        outer_radius = radius
+        qp.setPen(QPen(Qt.black, 2))
+        qp.setBrush(QBrush(Qt.black))
+        qp.drawEllipse(center, outer_radius, outer_radius)
+
+        # Draw text
+        qp.setPen(QPen(Qt.white, 2))
+        qp.setFont(QFont('Arial', radius * 0.05))  # Adjust font size as needed
+        for i in range(20):
+            angle = ((5 - i) * anglePerPie) - angleOffset + anglePerPie / 2  # Subtract i from 19 to go counterclockwise
+            text_radius = radius * 0.95 # Adjust this value as needed
+            text_x = center.x() + text_radius * math.cos(math.radians(angle / 16 - 90))
+            text_y = center.y() + text_radius * math.sin(math.radians(angle / 16 - 90))
+            rect = QRectF(text_x - radius * 0.05, text_y - radius * 0.05, radius * 0.1, radius * 0.1)
+            qp.drawText(rect, Qt.AlignCenter, str(self.point_values[i]))
+
+        # Draw the slices in offwhite and black
         for i in range(20):
             angle = (i * anglePerPie) - angleOffset
             qp.setPen(QPen(Qt.black, 2))
             qp.setBrush(QBrush(QColor("#F9DFBC") if i % 2 == 0 else Qt.black))
-            qp.drawPie(center.x() - radius, center.y() - radius, radius * 2, radius * 2, angle, anglePerPie)
+            qp.drawPie(center.x() - radius * 0.9, center.y() - radius * 0.9, radius * 1.8, radius * 1.8, angle, anglePerPie)
 
         qp.setPen(QPen(Qt.black, 2))
         qp.setBrush(Qt.NoBrush)
 
         fill_color = [green, red]
 
+        # Draw the double and triple sections
         for i in range(20):
             angle = (i * anglePerPie) - angleOffset 
 
             outer_path = QPainterPath()
-            outer_path.arcMoveTo(center.x() - radius, center.y() - radius, radius * 2, radius * 2, angle / 16)
-            outer_path.arcTo(center.x() - radius, center.y() - radius, radius * 2, radius * 2, angle / 16, 18)
-            outer_path.arcTo(center.x() - radius * 0.9, center.y() - radius * 0.9, 1.8 * radius, 1.8 * radius, (angle + anglePerPie) / 16, -18)
+            outer_path.arcMoveTo(center.x() - radius * 0.9, center.y() - radius * 0.9, radius * 1.8, radius * 1.8, angle / 16)
+            outer_path.arcTo(center.x() - radius * 0.9, center.y() - radius * 0.9, radius * 1.8, radius * 1.8, angle / 16, 18)
+            outer_path.arcTo(center.x() - radius * 0.85, center.y() - radius * 0.85, 1.7 * radius, 1.7 * radius, (angle + anglePerPie) / 16, -18)
             qp.fillPath(outer_path, QBrush(fill_color[i % 2]))
             
             inner_path = QPainterPath()
-            inner_path.arcMoveTo(center.x() - radius * 0.6, center.y() - radius * 0.6, radius * 1.2, radius * 1.2, angle / 16)
-            inner_path.arcTo(center.x() - radius * 0.6, center.y() - radius * 0.6, radius * 1.2, radius * 1.2, angle / 16, 18)
+            inner_path.arcMoveTo(center.x() - radius * 0.55, center.y() - radius * 0.55, radius * 1.1, radius * 1.1, angle / 16)
+            inner_path.arcTo(center.x() - radius * 0.55, center.y() - radius * 0.55, radius * 1.1, radius * 1.1, angle / 16, 18)
             inner_path.arcTo(center.x() - radius * 0.5, center.y() - radius * 0.5, radius, radius, (angle + anglePerPie) / 16, -18)
             qp.fillPath(inner_path, QBrush(fill_color[i % 2]))
 
         # Redraw dividing lines
-        qp.drawArc(center.x() - radius * 0.9, center.y() - radius * 0.9, radius * 1.8, radius * 1.8, 0, 360 * 16)
-        qp.drawArc(center.x() - radius * 0.6, center.y() - radius * 0.6, radius * 1.2, radius * 1.2, 0, 360 * 16)
-        qp.drawArc(center.x() - radius * 0.5, center.y() - radius * 0.5, radius * 1.0, radius * 1.0, 0, 360 * 16)
+        qp.drawArc(center.x() - radius * 0.85, center.y() - radius * 0.85, radius * 1.7, radius * 1.7, 0, 360 * 16)
+        qp.drawArc(center.x() - radius * 0.55, center.y() - radius * 0.55, radius * 1.1, radius * 1.1, 0, 360 * 16)
+        qp.drawArc(center.x() - radius * 0.5, center.y() - radius * 0.5, radius, radius, 0, 360 * 16)
 
         # Draw bullseye
         qp.setBrush(QBrush(green))
@@ -95,10 +114,12 @@ class Dartboard(QWidget):
                 score = 50
             elif distance < radius * 0.1:
                 score = 25
-            elif distance < radius * 0.6 and distance > radius * 0.5:
+            elif distance < radius * 0.55 and distance > radius * 0.5:
                 score *= 3
-            elif distance > radius * 0.9:
+            elif distance < radius * 0.9 and distance > radius * 0.85:
                 score *= 2
+            elif distance > radius * 0.9:
+                score *= 0
 
             # Change or add to this code to modify what the function of clicking on the sections is.
             self.scoreboard.update_score(score)
