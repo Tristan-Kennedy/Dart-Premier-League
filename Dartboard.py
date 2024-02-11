@@ -40,10 +40,10 @@ class Dartboard(QWidget):
 
         # Draw text
         qp.setPen(QPen(Qt.white, 2))
-        qp.setFont(QFont('Arial', radius * 0.05))  # Adjust font size as needed
+        qp.setFont(QFont('Arial', radius * 0.05))
         for i in range(20):
-            angle = ((5 - i) * anglePerPie) - angleOffset + anglePerPie / 2  # Subtract i from 19 to go counterclockwise
-            text_radius = radius * 0.95 # Adjust this value as needed
+            angle = ((5 - i) * anglePerPie) - angleOffset + anglePerPie / 2
+            text_radius = radius * 0.95
             text_x = center.x() + text_radius * math.cos(math.radians(angle / 16 - 90))
             text_y = center.y() + text_radius * math.sin(math.radians(angle / 16 - 90))
             rect = QRectF(text_x - radius * 0.05, text_y - radius * 0.05, radius * 0.1, radius * 0.1)
