@@ -1,10 +1,12 @@
 from PySide6.QtWidgets import QWidget
 from PySide6.QtGui import QPainter, QPen, QBrush, QPainterPath, QColor, QFont
-from PySide6.QtCore import Qt, QPoint, QRectF
+from PySide6.QtCore import Qt, QPoint, QRectF, Signal
 import math
 
 class Dartboard(QWidget):
-    def __init__(self, scoreboard):
+    dart_hit = Signal(int)
+
+    def __init__(self):
         super().__init__()
 
         self.setGeometry(300, 300, 600, 600)
@@ -14,8 +16,6 @@ class Dartboard(QWidget):
         self.clicked_point = None
 
         self.setMouseTracking(True)
-        
-        self.scoreboard = scoreboard
 
     # This entire function just draws the dart board
     def paintEvent(self, event):
@@ -121,8 +121,7 @@ class Dartboard(QWidget):
             elif distance > radius * 0.9:
                 score *= 0
 
-            # Change or add to this code to modify what the function of clicking on the sections is.
-            self.scoreboard.update_score(score)
+            self.dart_hit.emit(score)
             self.clicked_point = None
 
     def mouseMoveEvent(self, event):
