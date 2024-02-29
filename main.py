@@ -1,8 +1,8 @@
 from PySide6.QtWidgets import QApplication
-from JumbotronUI import *
-from ScorekeeperUI import *
-from Game import *
-from Controller import *
+from src.JumbotronUI import *
+from src.ScorekeeperUI import *
+from src.Game import *
+from src.Controller import *
 
 # Run this to start the program
 app = QApplication([])

@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QMainWindow, QVBoxLayout
-from Scoreboard import *
+from .Scoreboard import *
 
 class JumbotronUI(QMainWindow):
     def __init__(self):

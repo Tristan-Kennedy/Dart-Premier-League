@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QMainWindow, QVBoxLayout
-from Dartboard import *
-from Settings import *
+from .Dartboard import *
+from .Settings import *
 
 class ScorekeeperUI(QMainWindow):
     def __init__(self):
