@@ -1,24 +1,22 @@
-from PySide6.QtWidgets import QApplication
-
 class Controller:
-    def __init__(self, game, scoreboard_view, dartboard_view):
+    def __init__(self, game, jumbotron_ui, scorekeeper_ui):
         self.game = game
-        self.scoreboard_view = scoreboard_view
-        self.dartboard_view = dartboard_view
+        self.jumbotron_ui = jumbotron_ui
+        self.scorekeeper_ui = scorekeeper_ui
 
-        self.dartboard_view.dart_hit.connect(self.handle_dart_hit)
+        self.scorekeeper_ui.dartboard.dart_hit.connect(self.handle_dart_hit)
+        self.scorekeeper_ui.settings.scoreboard_resize.connect(self.handle_scoreboard_resize)
 
-        self.dartboard_view.show()
-        self.scoreboard_view.show()
+        self.scorekeeper_ui.show()
+        self.jumbotron_ui.show()
 
-        self.update_scoreboard()  # Call to initially display scoreboard
+        self.jumbotron_ui.scoreboard.refresh_scoreboard(self.game.players, self.game.current_player_index) # Call to initially display scoreboard
 
     def handle_dart_hit(self, score):
         self.game.update_score(score)
-        self.update_scoreboard()  # Call to update scoreboard after each dart hit
+        self.jumbotron_ui.scoreboard.refresh_scoreboard(self.game.players, self.game.current_player_index) # Call to update scoreboard after each dart hit
 
-    def update_scoreboard(self):
-        print("Hit!")
-        self.scoreboard_view.refresh_scoreboard(self.game.players, self.game.current_player_index)
-        app = QApplication.instance()
-        app.processEvents()
+    def handle_scoreboard_resize(self, new_size):
+        self.jumbotron_ui.resize(new_size * 2, new_size)
+        
+

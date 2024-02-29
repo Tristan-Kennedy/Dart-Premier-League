@@ -122,7 +122,6 @@ class Dartboard(QWidget):
                 score *= 0
 
             self.dart_hit.emit(score)
-            print("Dart hit signal emitted with score:", score)
             self.clicked_point = None
 
     def mouseMoveEvent(self, event):
