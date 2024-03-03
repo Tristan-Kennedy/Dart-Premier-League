@@ -4,7 +4,7 @@ from PySide6.QtCore import Qt, QPoint, QRectF, Signal
 import math
 
 class Dartboard(QWidget):
-    dart_hit = Signal(int)
+    dart_hit = Signal(int, int)
 
     def __init__(self):
         super().__init__()
@@ -107,21 +107,24 @@ class Dartboard(QWidget):
                 section = 0   # Wrap around to the start of the list
 
             # This sets the base score based upon the section
-            score = self.point_values[section]
+            wedge_value = self.point_values[section]
+            multiplier = 1
 
             # This modifies the score based upon the distance from the center
             if distance < radius * 0.05:
-                score = 50
+                wedge_value = 25
+                multiplier = 2
             elif distance < radius * 0.1:
-                score = 25
+                wedge_value = 25
+                multiplier = 1
             elif distance < radius * 0.55 and distance > radius * 0.5:
-                score *= 3
+                multiplier = 3
             elif distance < radius * 0.9 and distance > radius * 0.85:
-                score *= 2
+                multiplier = 2
             elif distance > radius * 0.9:
-                score *= 0
+                multiplier = 0
 
-            self.dart_hit.emit(score)
+            self.dart_hit.emit(multiplier, wedge_value)
             self.clicked_point = None
 
     def mouseMoveEvent(self, event):

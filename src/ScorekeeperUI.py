@@ -17,8 +17,8 @@ class ScorekeeperUI(QMainWindow):
         # Create a QVBoxLayout to hold the Dartboard
         layout = QVBoxLayout()
         layout.addWidget(self.dartboard, 5)
-        layout.addWidget(self.knockout, 4)
-        layout.addWidget(self.foul, 4)
+        layout.addWidget(self.knockout, 1)
+        layout.addWidget(self.foul, 1)
         layout.addWidget(self.settings, 1)
 
         # Create a central widget to hold the layout
