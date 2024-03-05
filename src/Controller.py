@@ -1,28 +1,55 @@
+from .JumbotronUI import *
+from .ScorekeeperUI import *
+from .Game import *
+import sys
+
 class Controller:
-    def __init__(self, game, jumbotron_ui, scorekeeper_ui):
-        self.game = game
-        self.jumbotron_ui = jumbotron_ui
-        self.scorekeeper_ui = scorekeeper_ui
+    def __init__(self):
+        self.scorekeeper_ui = ScorekeeperUI()
+        self.jumbotron_ui = JumbotronUI()
+        self.jumbotron_ui.move(1000, 300)
+
+        self.scorekeeper_ui.settings.game_configure.connect(self.handle_configure_game)
+        self.scorekeeper_ui.settings.open_config_dialog() # Open the configuration dialog before the rest as it initializes the game
 
         self.scorekeeper_ui.dartboard.dart_hit.connect(self.handle_dart_hit)
         self.scorekeeper_ui.settings.scoreboard_resize.connect(self.handle_scoreboard_resize)
         self.scorekeeper_ui.settings.undo_signal.connect(self.handle_undo)
+        self.game.game_end.connect(self.handle_game_end)
 
         self.scorekeeper_ui.show()
         self.jumbotron_ui.show()
 
-        self.jumbotron_ui.scoreboard.refresh_scoreboard(self.game.players, self.game.current_player_index) # Call to initially display scoreboard
+        self.refresh_scoreboard() # Call to initially display scoreboard
+
+    def refresh_scoreboard(self):
+        self.jumbotron_ui.scoreboard.refresh_scoreboard(self.game.players, self.game.current_player_index)
 
     def handle_dart_hit(self, multiplier, wedge_value):
         self.game.update_score(multiplier, wedge_value)
-        self.jumbotron_ui.scoreboard.refresh_scoreboard(self.game.players, self.game.current_player_index) # Call to update scoreboard after each dart hit
+        self.refresh_scoreboard()
 
     def handle_undo(self):
         self.game.undo()
-        self.jumbotron_ui.scoreboard.refresh_scoreboard(self.game.players, self.game.current_player_index)
+        self.refresh_scoreboard()
 
     def handle_scoreboard_resize(self, new_size):
         self.jumbotron_ui.resize(new_size * 2, new_size)
 
+    def handle_configure_game(self, config):
+        starting_score = config.get('starting_score', 501)
+        best_of_legs = config.get('best_of_legs', 14)
+        best_of_matches = config.get('best_of_matches', 4)
+
+        player1 = Player("Test Player 1", starting_score)
+        player2 = Player("Test Player 2", starting_score)
+        players = [player1, player2]
+
+        # Initialize game with new configuration
+        self.game = Game(players, starting_score, best_of_legs, best_of_matches)
+        self.refresh_scoreboard()
         
+    def handle_game_end(self):
+        print("Game Over.")
+        sys.exit()
 

@@ -9,7 +9,7 @@ class Scoreboard(QWidget):
         self.setLayout(self.layout)
 
     def get_score_text(self, player, is_current_player):
-        return f"{'-->' if is_current_player else ''} {player.name}: {player.score}, Legs won: {player.legs_won}"
+        return f"{'-->' if is_current_player else ''} {player.name}: {player.score}, Legs won: {player.legs_won}, Matches won: {player.matches_won}"
 
     def refresh_scoreboard(self, players, current_player_index):
         # Clear existing labels
