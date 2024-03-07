@@ -1,8 +1,9 @@
 from PySide6.QtCore import QObject, Signal
 
 class Player:
-    def __init__(self, name, starting_score):
-        self.name = name
+    def __init__(self, fname, lname, starting_score):
+        self.fName = fname
+        self.lName = lname
         self.score = starting_score
         self.starting_score = starting_score
         self.previous_score = starting_score

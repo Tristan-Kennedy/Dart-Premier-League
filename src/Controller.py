@@ -1,6 +1,7 @@
 from .JumbotronUI import *
 from .ScorekeeperUI import *
 from .Game import *
+from .Database import *
 import sys
 
 class Controller:
@@ -8,6 +9,8 @@ class Controller:
         self.scorekeeper_ui = ScorekeeperUI()
         self.jumbotron_ui = JumbotronUI()
         self.jumbotron_ui.move(1000, 300)
+
+        self.database = Database()
 
         self.scorekeeper_ui.settings.game_configure.connect(self.handle_configure_game)
         self.scorekeeper_ui.settings.open_config_dialog() # Open the configuration dialog before the rest as it initializes the game
@@ -41,8 +44,8 @@ class Controller:
         best_of_legs = config.get('best_of_legs', 14)
         best_of_matches = config.get('best_of_matches', 4)
 
-        player1 = Player("Test Player 1", starting_score)
-        player2 = Player("Test Player 2", starting_score)
+        player1 = Player("John", "Doe", starting_score)
+        player2 = Player("Jane", "Doe", starting_score)
         players = [player1, player2]
 
         # Initialize game with new configuration
