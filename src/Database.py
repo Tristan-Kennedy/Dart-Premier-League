@@ -6,7 +6,6 @@ import sqlite3 as sq
 class Database:
     def __init__(self):
         self.createDatabase()
-        self.addNewPlayer("John", "Doe")
         
     def createDatabase(self):
         conn = sq.connect('dartsDatabase.db')  # Defines the connection to the db file, creates the file if it doesn't exist
@@ -57,6 +56,24 @@ class Database:
         conn.commit()
         conn.close()
 
+    # A function to check if player is in database
+    def inDatabase(self, fName, lName):
+        conn = sq.connect('dartsDatabase.db')
+        cursor = conn.cursor()
+
+        query = '''SELECT * FROM players
+                    WHERE firstName = ? AND lastName = ?;'''
+
+        cursor.execute(query, (fName, lName))
+        # fetch one player from the query
+        player = cursor.fetchone()
+
+        conn.close() 
+
+        if player:   
+            return True
+        else:
+            return False
 
     def addThrow(self, points, playerID):
         conn = sq.connect('dartsDatabase.db')
@@ -69,7 +86,6 @@ class Database:
 
         conn.commit()
         conn.close()
-
 
 
 

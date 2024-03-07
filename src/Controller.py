@@ -46,6 +46,14 @@ class Controller:
 
         player1 = Player("John", "Doe", starting_score)
         player2 = Player("Jane", "Doe", starting_score)
+
+        # Check if the players are already in the database. If they are not, add them.
+        if self.database.inDatabase(player1.fName, player1.lName) == False:
+            self.database.addNewPlayer(player1.fName, player1.lName)
+        
+        if self.database.inDatabase(player2.fName, player2.lName) == False:
+            self.database.addNewPlayer(player2.fName, player2.lName)
+
         players = [player1, player2]
 
         # Initialize game with new configuration
