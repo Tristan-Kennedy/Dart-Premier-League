@@ -8,10 +8,6 @@ class Database:
         self.createDatabase()
         self.addNewPlayer("John", "Doe")
         
-        # For testing purposes use this to remove entries from player table
-        for i in range (50):
-            self.removePlayer(i)
-
     def createDatabase(self):
         conn = sq.connect('dartsDatabase.db')  # Defines the connection to the db file, creates the file if it doesn't exist
         cursor = conn.cursor()  # Connects a new cursor to the database
