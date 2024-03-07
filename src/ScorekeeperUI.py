@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMainWindow, QVBoxLayout
+from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout
 from .Dartboard import *
 from .Settings import *
 from .Knockout import *
@@ -14,16 +14,24 @@ class ScorekeeperUI(QMainWindow):
         self.foul = Foul()
         self.settings = Settings()
 
+        # Create a QHBoxLayout for the buttons
+        button_layout = QHBoxLayout()
+        button_layout.addWidget(self.knockout, 1)
+        button_layout.addWidget(self.foul, 1)
+
         # Create a QVBoxLayout to hold the Dartboard
-        layout = QVBoxLayout()
-        layout.addWidget(self.dartboard, 5)
-        layout.addWidget(self.knockout, 1)
-        layout.addWidget(self.foul, 1)
-        layout.addWidget(self.settings, 1)
+        left_layout = QVBoxLayout()
+        left_layout.addWidget(self.dartboard, 5)
+        left_layout.addLayout(button_layout, 1)
+
+        # Create a QHBoxLayout to hold the left_layout and Settings
+        main_layout = QHBoxLayout()
+        main_layout.addLayout(left_layout, 5)
+        main_layout.addWidget(self.settings, 1)
 
         # Create a central widget to hold the layout
         central_widget = QWidget()
-        central_widget.setLayout(layout)
+        central_widget.setLayout(main_layout)
 
         # Set the central widget
         self.setCentralWidget(central_widget)
