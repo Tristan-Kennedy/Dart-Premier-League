@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QSlider, QVBoxLayout, QPushButton, QDialog, QFormLayout, QLabel, QSpinBox, QDialogButtonBox, QCheckBox
+from PySide6.QtWidgets import QLineEdit, QWidget, QSlider, QVBoxLayout, QPushButton, QDialog, QFormLayout, QLabel, QSpinBox, QDialogButtonBox, QCheckBox
 from PySide6.QtCore import Qt, Signal
 
 class Settings(QWidget):
@@ -59,6 +59,18 @@ class Settings(QWidget):
         best_of_matches_input.setRange(1, 10)
         layout.addRow(QLabel("Best of Matches:"), best_of_matches_input)
 
+        # Player1 name inputs
+        player1_first_name_input = QLineEdit()
+        player1_last_name_input = QLineEdit()
+        layout.addRow(QLabel("Competitor 1 - First Name:"), player1_first_name_input)
+        layout.addRow(QLabel("Competitor 1 - Last Name:"), player1_last_name_input)
+
+        # Player2 name inputs
+        player2_first_name_input = QLineEdit()
+        player2_last_name_input = QLineEdit()
+        layout.addRow(QLabel("Competitor 2 - First Name:"), player2_first_name_input)
+        layout.addRow(QLabel("Competitor 2 - Last Name:"), player2_last_name_input)
+
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(dialog.accept)
         button_box.rejected.connect(dialog.reject)
@@ -72,7 +84,11 @@ class Settings(QWidget):
             self.game_configure.emit({
                 'starting_score': starting_score_input.value(),
                 'best_of_legs': best_of_legs_input.value(),
-                'best_of_matches': best_of_matches_input.value()
+                'best_of_matches': best_of_matches_input.value(),
+                'player1_first_name': player1_first_name_input.text(),
+                'player1_last_name': player1_last_name_input.text(),
+                'player2_first_name': player2_first_name_input.text(),
+                'player2_last_name': player2_last_name_input.text()            
             })
     
     def toggle_gamestats(self, state):

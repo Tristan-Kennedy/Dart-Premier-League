@@ -1,14 +1,19 @@
 from PySide6.QtCore import QObject, Signal
 
 class Player:
-    def __init__(self, fname, lname, starting_score):
+    def __init__(self, fname, lname, id, starting_score):
         self.fName = fname
         self.lName = lname
+        self.playerID = id
         self.score = starting_score
         self.starting_score = starting_score
         self.previous_score = starting_score
         self.legs_won = 0
         self.matches_won = 0
+    
+    def get_playerID(self):
+        return self.get_playerID
+
 
 class Game(QObject):
     game_end = Signal()

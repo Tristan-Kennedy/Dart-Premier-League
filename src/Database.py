@@ -6,6 +6,7 @@ import sqlite3 as sq
 class Database:
     def __init__(self):
         self.createDatabase()
+
         
     def createDatabase(self):
         conn = sq.connect('dartsDatabase.db')  # Defines the connection to the db file, creates the file if it doesn't exist

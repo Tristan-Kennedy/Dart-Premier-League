@@ -43,9 +43,13 @@ class Controller:
         starting_score = config.get('starting_score', 501)
         best_of_legs = config.get('best_of_legs', 14)
         best_of_matches = config.get('best_of_matches', 4)
+        player1_first_name = config.get('player1_first_name')
+        player1_last_name = config.get('player1_last_name')
+        player2_first_name = config.get('player2_first_name')
+        player2_last_name = config.get('player2_last_name')
 
-        player1 = Player("John", "Doe", starting_score)
-        player2 = Player("Jane", "Doe", starting_score)
+        player1 = Player(player1_first_name, player1_last_name, starting_score)
+        player2 = Player(player2_first_name, player2_last_name, starting_score)
 
         # Check if the players are already in the database. If they are not, add them.
         if self.database.inDatabase(player1.fName, player1.lName) == False:
