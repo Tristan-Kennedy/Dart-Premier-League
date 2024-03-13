@@ -57,6 +57,20 @@ class Database:
         conn.commit()
         conn.close()
 
+    def get_all_players(self):
+        conn = sq.connect('dartsDatabase.db')
+        cursor = conn.cursor()
+
+        query = 'SELECT * FROM players'
+
+        cursor.execute(query)
+        players = cursor.fetchall()
+
+        conn.close()
+        
+        return players
+
+
     # A function to check if player is in database
     def inDatabase(self, fName, lName):
         conn = sq.connect('dartsDatabase.db')

@@ -9,9 +9,13 @@ class Controller:
         self.scorekeeper_ui = ScorekeeperUI()
         self.jumbotron_ui = JumbotronUI()
         self.jumbotron_ui.move(1000, 300)
+        self.game = None
 
         self.database = Database()
 
+        self.scorekeeper_ui.settings.add_player_signal.connect(self.handle_add_player)
+        self.scorekeeper_ui.settings.get_players_signal.connect(self.handle_get_players)
+        self.scorekeeper_ui.settings.delete_player_signal.connect(self.handle_delete_player)
         self.scorekeeper_ui.settings.game_configure.connect(self.handle_configure_game)
         self.scorekeeper_ui.settings.open_config_dialog() # Open the configuration dialog before the rest as it initializes the game
 
@@ -39,24 +43,37 @@ class Controller:
     def handle_scoreboard_resize(self, new_size):
         self.jumbotron_ui.resize(new_size * 2, new_size)
 
+    def handle_add_player(self, player):
+        self.database.addNewPlayer(player.get('first_name'), player.get('last_name'))
+        self.handle_get_players() # Call after adding to get the new player in the dropdowns
+    
+    def handle_get_players(self):
+        players = self.database.get_all_players()
+        # Convert each tuple into a string
+        players = ['{}: {} {}'.format(id, first_name, last_name) for id, first_name, last_name in players]
+        self.scorekeeper_ui.settings.all_players = players
+    
+    def handle_delete_player(self, player_id):
+        self.database.removePlayer(player_id)
+        self.handle_get_players() # Call after deleting to remove player in the dropdowns
+
     def handle_configure_game(self, config):
         starting_score = config.get('starting_score', 501)
         best_of_legs = config.get('best_of_legs', 14)
         best_of_matches = config.get('best_of_matches', 4)
-        player1_first_name = config.get('player1_first_name')
-        player1_last_name = config.get('player1_last_name')
-        player2_first_name = config.get('player2_first_name')
-        player2_last_name = config.get('player2_last_name')
+        player1 = config.get('player1')
+        player2 = config.get('player2')
 
-        player1 = Player(player1_first_name, player1_last_name, starting_score)
-        player2 = Player(player2_first_name, player2_last_name, starting_score)
+        player1_id, player1_name = config.get('player1').split(': ')
+        player1_id = int(player1_id)
+        player1_first_name, player1_last_name = player1_name.split(' ')
 
-        # Check if the players are already in the database. If they are not, add them.
-        if self.database.inDatabase(player1.fName, player1.lName) == False:
-            self.database.addNewPlayer(player1.fName, player1.lName)
-        
-        if self.database.inDatabase(player2.fName, player2.lName) == False:
-            self.database.addNewPlayer(player2.fName, player2.lName)
+        player2_id, player2_name = config.get('player2').split(': ')
+        player2_id = int(player2_id)
+        player2_first_name, player2_last_name = player2_name.split(' ')
+
+        player1 = Player(player1_first_name, player1_last_name, player1_id, starting_score)
+        player2 = Player(player2_first_name, player2_last_name, player2_id, starting_score)
 
         players = [player1, player2]
 
