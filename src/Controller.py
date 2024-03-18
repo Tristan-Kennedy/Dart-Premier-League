@@ -2,12 +2,14 @@ from .JumbotronUI import *
 from .ScorekeeperUI import *
 from .Game import *
 from .Database import *
+from .StatsBoard import *
 import sys
 
 class Controller:
     def __init__(self):
         self.scorekeeper_ui = ScorekeeperUI()
         self.jumbotron_ui = JumbotronUI()
+        self.stats_window = StatisticsWindow()
         self.jumbotron_ui.move(1000, 300)
         self.game = None
 
@@ -26,6 +28,7 @@ class Controller:
 
         self.scorekeeper_ui.show()
         self.jumbotron_ui.show()
+        self.stats_window.show()
 
         self.refresh_scoreboard() # Call to initially display scoreboard
 
