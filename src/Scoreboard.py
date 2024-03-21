@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout
-#import throws_to_win
+
 
 class Scoreboard(QWidget):
     def __init__(self):
@@ -30,7 +30,7 @@ class Scoreboard(QWidget):
             [2, 1], [1, 1],
         ]  # throws are stored as their value + the multiplier
         
-        throw_types = {1: 'single', 2: 'double', 3: 'triple'}  # dictionary mapping multiplier to their literal
+        throw_types = {1: "s", 2: "d", 3: "t"}  # dictionary mapping multiplier to their literal. updated to include abreviations
         
         # memo table speeds things up tremendously
         memo = {}  # initialize the memo table
@@ -74,7 +74,7 @@ class Scoreboard(QWidget):
                 score_text +=" Throws to win:"
                 ttw = self.throws_to_win(player.score)
                 for item in ttw:
-                    score_text += f" {item}"
+                    score_text += f" {str(item[0])+item[1]}"
                 
             label = QLabel(score_text)
             self.scoreLabels.append(label)
