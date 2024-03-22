@@ -108,4 +108,6 @@ class Game(QObject):
 
     def foul(self): #skip the current player's turn 
         self.current_player_index = (self.current_player_index + 1) % len(self.players)
-        
+    
+    def bounceout(self): #score doesn't update 
+        self.update_score(0, 1) #maybe add a visual indicator that the dart did not stick to the board

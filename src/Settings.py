@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QLineEdit, QWidget, QSlider, QVBoxLayout, QPushButton, QDialog, QFormLayout, QLabel, QSpinBox, QDialogButtonBox, QCheckBox, QComboBox
 from PySide6.QtCore import Qt, Signal
 from .Foul import * #import foul for its signal
+from .Bounceout import * #import bounceout for its signal
 
 class Settings(QWidget):
     scoreboard_resize = Signal(int)
