@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import QMainWindow, QVBoxLayout
+from .Dartboard import *
 from .Scoreboard import *
 
 class JumbotronUI(QMainWindow):
@@ -6,11 +7,13 @@ class JumbotronUI(QMainWindow):
         super().__init__()
 
         # Create a Scoreboard instance
+        self.dartboard = Dartboard(clickable=False)
         self.scoreboard = Scoreboard()
 
         # Create a QVBoxLayout to hold the Dartboard
         layout = QVBoxLayout()
-        layout.addWidget(self.scoreboard)
+        layout.addWidget(self.dartboard, 5)
+        layout.addWidget(self.scoreboard, 1)
 
         # Create a central widget to hold the layout
         central_widget = QWidget()
@@ -20,4 +23,4 @@ class JumbotronUI(QMainWindow):
         self.setCentralWidget(central_widget)
 
         self.setWindowTitle('Jumbotron Window')
-        self.setGeometry(200, 200, 100, 100)
+        self.setGeometry(1000, 50, 500, 750)

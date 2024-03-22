@@ -1,12 +1,12 @@
 from PySide6.QtWidgets import QWidget
 from PySide6.QtGui import QPainter, QPen, QBrush, QPainterPath, QColor, QFont
-from PySide6.QtCore import Qt, QPoint, QRectF, Signal
+from PySide6.QtCore import Qt, QPoint, QRectF, Signal, QPointF
 import math
 
 class Dartboard(QWidget):
-    dart_hit = Signal(int, int)
+    dart_hit = Signal(int, int, QPointF)
 
-    def __init__(self):
+    def __init__(self, clickable):
         super().__init__()
 
         self.setGeometry(300, 300, 600, 600)
@@ -14,6 +14,10 @@ class Dartboard(QWidget):
 
         self.point_values = [6, 13, 4, 18, 1, 20, 5, 12, 9, 14, 11, 8, 16, 7, 19, 3, 17, 2, 15, 10]
         self.clicked_point = None
+        self.clickable = clickable
+
+        self.clicked_points = []
+        self.clicked_points_history = [] 
 
         self.setMouseTracking(True)
 
@@ -88,50 +92,76 @@ class Dartboard(QWidget):
         qp.setBrush(QBrush(red))
         qp.drawEllipse(center, radius * 0.05, radius * 0.05)
 
+        qp.setBrush(QBrush(Qt.white))
+        for point in self.clicked_points:
+            qp.drawEllipse(QPointF(self.width() / 2 + radius * point.x(), self.height() / 2 + radius * point.y()), radius * 0.02, radius * 0.02)
+
     def mousePressEvent(self, event):
-        self.clicked_point = event.position()
-        self.update()
+        if self.clickable:
+            self.clicked_point = event.position()
+            self.update()
 
     def mouseReleaseEvent(self, event):
-        if self.clicked_point is not None:
-            point = self.clicked_point
-            width = self.width()
-            height = self.height()
-            radius = min(width, height) // 2
-            center = QPoint(width // 2, height // 2)
-            distance = math.sqrt((point.x() - center.x()) ** 2 + (point.y() - center.y()) ** 2)
-            angle = self.calculate_angle(point, center)
+        if self.clickable:
+            if self.clicked_point is not None:
+                point = self.clicked_point
+                width = self.width()
+                height = self.height()
+                radius = min(width, height) // 2
+                center = QPoint(width // 2, height // 2)
+                distance = math.sqrt((point.x() - center.x()) ** 2 + (point.y() - center.y()) ** 2)
+                angle = self.calculate_angle(point, center)
 
-            section = int(angle // 18)
-            if section >= 20:     # Correct for getting the 20th value which doesn't exist
-                section = 0   # Wrap around to the start of the list
+                section = int(angle // 18)
+                if section >= 20:     # Correct for getting the 20th value which doesn't exist
+                    section = 0   # Wrap around to the start of the list
 
-            # This sets the base score based upon the section
-            wedge_value = self.point_values[section]
-            multiplier = 1
-
-            # This modifies the score based upon the distance from the center
-            if distance < radius * 0.05:
-                wedge_value = 25
-                multiplier = 2
-            elif distance < radius * 0.1:
-                wedge_value = 25
+                # This sets the base score based upon the section
+                wedge_value = self.point_values[section]
                 multiplier = 1
-            elif distance < radius * 0.55 and distance > radius * 0.5:
-                multiplier = 3
-            elif distance < radius * 0.9 and distance > radius * 0.85:
-                multiplier = 2
-            elif distance > radius * 0.9:
-                multiplier = 0
 
-            self.dart_hit.emit(multiplier, wedge_value)
-            self.clicked_point = None
+                # This modifies the score based upon the distance from the center
+                if distance < radius * 0.05:
+                    wedge_value = 25
+                    multiplier = 2
+                elif distance < radius * 0.1:
+                    wedge_value = 25
+                    multiplier = 1
+                elif distance < radius * 0.55 and distance > radius * 0.5:
+                    multiplier = 3
+                elif distance < radius * 0.9 and distance > radius * 0.85:
+                    multiplier = 2
+                elif distance > radius * 0.9:
+                    multiplier = 0
+
+                radius = min(width, height) // 2
+                relative_point = QPointF((self.clicked_point.x() - self.width() / 2) / radius, (self.clicked_point.y() - self.height() / 2) / radius)
+                self.clicked_points_history.append(self.clicked_points.copy())
+
+                self.dart_hit.emit(multiplier, wedge_value, relative_point)
+                self.clicked_points.append(relative_point)
+                self.clicked_point = None
 
     def mouseMoveEvent(self, event):
-        self.update()
+        if self.clickable:
+            self.update()
 
     # Angle calculation <3
     def calculate_angle(self, point, center):
         diff = QPoint(point.x() - center.x(), point.y() - center.y())
         angle = math.atan2(-diff.y(), diff.x())
         return ((angle * 57.2958) + 360) % 360 + 9
+    
+    def add_clicked_point(self, point):
+        self.clicked_points_history.append(self.clicked_points.copy())
+        self.clicked_points.append(point)
+        self.update()
+
+    def undo_clicked_point(self):
+        if self.clicked_points_history:  # check if there is any history to revert to
+            self.clicked_points = self.clicked_points_history.pop()  # revert to the previous state
+            self.update()
+
+    def clear_clicked_points(self):
+        self.clicked_points.clear()
+        self.update()

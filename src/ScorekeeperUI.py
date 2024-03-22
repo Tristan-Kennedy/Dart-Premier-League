@@ -9,7 +9,7 @@ class ScorekeeperUI(QMainWindow):
         super().__init__()
 
         # Create a Dartboard instance
-        self.dartboard = Dartboard()
+        self.dartboard = Dartboard(clickable=True)
         self.knockout = Knockout()
         self.foul = Foul()
         self.settings = Settings()
@@ -37,4 +37,4 @@ class ScorekeeperUI(QMainWindow):
         self.setCentralWidget(central_widget)
 
         self.setWindowTitle('Scorekeeper Window')
-        self.setGeometry(100, 100, 800, 800)
+        self.setGeometry(0, 50, 800, 800)

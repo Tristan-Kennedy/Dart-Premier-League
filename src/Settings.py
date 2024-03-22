@@ -20,9 +20,9 @@ class Settings(QWidget):
         self.all_players = []
                 
         self.slider = QSlider(Qt.Horizontal)
-        self.slider.setMinimum(50)
-        self.slider.setMaximum(500)
-        self.slider.setValue(200)
+        self.slider.setMinimum(300)
+        self.slider.setMaximum(800)
+        self.slider.setValue(500)
         self.slider.valueChanged.connect(self.scoreboard_resize.emit)
         self.layout.addWidget(self.slider)
 
@@ -62,7 +62,7 @@ class Settings(QWidget):
 
         best_of_matches_input = QSpinBox()
         best_of_matches_input.setRange(1, 10)
-        layout.addRow(QLabel("Best of Matches:"), best_of_matches_input)
+        layout.addRow(QLabel("Best of Sets:"), best_of_matches_input)
 
         self.player1_dropdown = QComboBox()
         self.player2_dropdown = QComboBox()

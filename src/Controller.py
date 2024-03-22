@@ -10,10 +10,8 @@ class Controller:
         self.scorekeeper_ui = ScorekeeperUI()
         self.jumbotron_ui = JumbotronUI()
         self.stats_window = StatisticsWindow()
-        self.jumbotron_ui.move(1000, 300)
-        self.game = None
-
         self.database = Database()
+        self.game = None
 
         self.scorekeeper_ui.settings.add_player_signal.connect(self.handle_add_player)
         self.scorekeeper_ui.settings.get_players_signal.connect(self.handle_get_players)
@@ -25,26 +23,32 @@ class Controller:
         self.scorekeeper_ui.settings.scoreboard_resize.connect(self.handle_scoreboard_resize)
         self.scorekeeper_ui.settings.undo_signal.connect(self.handle_undo)
         self.game.game_end.connect(self.handle_game_end)
+        self.game.turn_switch.connect(self.handle_turn_switch)
 
         self.scorekeeper_ui.show()
         self.jumbotron_ui.show()
         self.stats_window.show()
 
-        self.refresh_scoreboard() # Call to initially display scoreboard
-
     def refresh_scoreboard(self):
-        self.jumbotron_ui.scoreboard.refresh_scoreboard(self.game.players, self.game.current_player_index)
+        self.jumbotron_ui.scoreboard.refresh_scoreboard(self.game)
 
-    def handle_dart_hit(self, multiplier, wedge_value):
+    def handle_dart_hit(self, multiplier, wedge_value, clicked_point):
         self.game.update_score(multiplier, wedge_value)
         self.refresh_scoreboard()
+        self.jumbotron_ui.dartboard.add_clicked_point(clicked_point)
+    
+    def handle_turn_switch(self):
+        self.jumbotron_ui.dartboard.clear_clicked_points()
+        self.scorekeeper_ui.dartboard.clear_clicked_points()
 
     def handle_undo(self):
         self.game.undo()
+        self.scorekeeper_ui.dartboard.undo_clicked_point()
+        self.jumbotron_ui.dartboard.undo_clicked_point()
         self.refresh_scoreboard()
 
     def handle_scoreboard_resize(self, new_size):
-        self.jumbotron_ui.resize(new_size * 2, new_size)
+        self.jumbotron_ui.resize(new_size, new_size * 1.5)
 
     def handle_add_player(self, player):
         self.database.addNewPlayer(player.get('first_name'), player.get('last_name'))
@@ -82,7 +86,12 @@ class Controller:
 
         # Initialize game with new configuration
         self.game = Game(players, starting_score, best_of_legs, best_of_matches)
+
+        self.game.game_end.connect(self.handle_game_end)
+        self.game.turn_switch.connect(self.handle_turn_switch)
+
         self.refresh_scoreboard()
+        self.handle_turn_switch()
         
     def handle_game_end(self):
         print("Game Over.")

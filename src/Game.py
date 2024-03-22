@@ -17,6 +17,7 @@ class Player:
 
 class Game(QObject):
     game_end = Signal()
+    turn_switch = Signal()
 
     def __init__(self, players = [], starting_score = 501, best_of_legs = 14, best_of_matches = 4):
         super().__init__()
@@ -28,24 +29,20 @@ class Game(QObject):
         self.starting_player_index = 0
         self.turns = 0
         self.game_states = []
-
-    def get_current_player(self):
-        return self.players[self.current_player_index]
+        self.bust = False
+        self.leg_end = False
 
     def on_leg_complete(self):
         for player in self.players:
             player.score = self.starting_score
             player.previous_score = self.starting_score
         self.turns = 0
-        self.starting_player_index = (self.starting_player_index + 1) % len(self.players)
-        self.current_player_index = self.starting_player_index
+        self.leg_end = True
 
     def on_match_complete(self):
         for player in self.players:
             player.legs_won = 0
-        self.turns = 0
         self.starting_player_index = 1
-        self.current_player_index = self.starting_player_index
 
     def store_game_state(self):
         game_state = {
@@ -54,7 +51,9 @@ class Game(QObject):
             'matches_won': [player.matches_won for player in self.players],
             'turns': self.turns,
             'current_player_index': self.current_player_index,
-            'starting_player_index': self.starting_player_index
+            'starting_player_index': self.starting_player_index,
+            'bust': self.bust,
+            'leg_end': self.leg_end
         }
         self.game_states.append(game_state)
 
@@ -66,6 +65,8 @@ class Game(QObject):
         self.turns = game_state['turns']
         self.current_player_index = game_state['current_player_index']
         self.starting_player_index = game_state['starting_player_index']
+        self.bust = game_state['bust']
+        self.leg_end = game_state['leg_end']
 
         for player, score, legs_won, matches_won in zip(self.players, game_state['scores'], game_state['legs_won'], game_state['matches_won']):
             player.score = score
@@ -74,12 +75,25 @@ class Game(QObject):
 
     def update_score(self, multiplier, wedge_value):
         self.store_game_state()
+        current_player = self.players[self.current_player_index]
+        
+        if self.leg_end:
+            self.leg_end = False
+            self.turn_switch.emit()
+            self.starting_player_index = (self.starting_player_index + 1) % len(self.players)
+            self.current_player_index = self.starting_player_index
 
-        current_player = self.get_current_player()
+        if self.bust or self.turns == 3:
+            current_player.previous_score = current_player.score
+            self.turns = 0
+            self.current_player_index = (self.current_player_index + 1) % len(self.players)
+            self.turn_switch.emit()
+
+        current_player = self.players[self.current_player_index]
         current_player.score -= multiplier * wedge_value
         self.turns += 1
 
-        bust = False
+        self.bust = False
         if current_player.score == 0 and multiplier == 2:
             current_player.legs_won += 1
             if current_player.legs_won >= self.best_of_legs:
@@ -90,9 +104,4 @@ class Game(QObject):
             self.on_leg_complete()
         elif current_player.score < 1 or current_player.score == 1:
             current_player.score = current_player.previous_score
-            bust = True
-
-        if self.turns >= 3 or bust:
-            current_player.previous_score = current_player.score
-            self.turns = 0
-            self.current_player_index = (self.current_player_index + 1) % len(self.players)
+            self.bust = True
