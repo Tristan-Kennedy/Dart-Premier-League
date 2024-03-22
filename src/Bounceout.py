@@ -5,7 +5,7 @@ from PySide6.QtCore import Qt, QPoint, QRectF, Signal
 
 class Bounceout(QWidget):
     #Basic Widget Construction 
-    bounceout_click = Signal(int)
+    bounceout_signal = Signal(int)
 
     def __init__(self):
         super().__init__()
@@ -34,7 +34,6 @@ class Bounceout(QWidget):
     
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            self.foul_click.emit(1)
-            
+            self.bounceout_signal.emit(1)
 
         
