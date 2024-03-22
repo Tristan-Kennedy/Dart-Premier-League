@@ -22,6 +22,7 @@ class Controller:
         self.scorekeeper_ui.dartboard.dart_hit.connect(self.handle_dart_hit)
         self.scorekeeper_ui.settings.scoreboard_resize.connect(self.handle_scoreboard_resize)
         self.scorekeeper_ui.settings.undo_signal.connect(self.handle_undo)
+        self.scorekeeper_ui.foul.foul_signal.connect(self.handle_foul) #foul button
         self.game.game_end.connect(self.handle_game_end)
         self.game.turn_switch.connect(self.handle_turn_switch)
 
@@ -46,6 +47,11 @@ class Controller:
         self.scorekeeper_ui.dartboard.undo_clicked_point()
         self.jumbotron_ui.dartboard.undo_clicked_point()
         self.refresh_scoreboard()
+    def handle_foul(self): #in the event of a foul, clear the dart dots from the board and move onto the next player
+        self.game.foul()
+        self.refresh_scoreboard()
+        self.jumbotron_ui.dartboard.clear_clicked_points()
+        self.scorekeeper_ui.dartboard.clear_clicked_points()
 
     def handle_scoreboard_resize(self, new_size):
         self.jumbotron_ui.resize(new_size, new_size * 1.5)

@@ -3,6 +3,7 @@ from .Dartboard import *
 from .Settings import *
 from .Knockout import *
 from .Foul import Foul
+from .Bounceout import Bounceout
 
 class ScorekeeperUI(QMainWindow):
     def __init__(self):
@@ -12,12 +13,14 @@ class ScorekeeperUI(QMainWindow):
         self.dartboard = Dartboard(clickable=True)
         self.knockout = Knockout()
         self.foul = Foul()
+        self.bounceout = Bounceout()
         self.settings = Settings()
 
         # Create a QHBoxLayout for the buttons
         button_layout = QHBoxLayout()
         button_layout.addWidget(self.knockout, 1)
         button_layout.addWidget(self.foul, 1)
+        button_layout.addWidget(self.bounceout,1)
 
         # Create a QVBoxLayout to hold the Dartboard
         left_layout = QVBoxLayout()

@@ -105,3 +105,7 @@ class Game(QObject):
         elif current_player.score < 1 or current_player.score == 1:
             current_player.score = current_player.previous_score
             self.bust = True
+
+    def foul(self): #skip the current player's turn 
+        self.current_player_index = (self.current_player_index + 1) % len(self.players)
+        

@@ -1,9 +1,11 @@
 from PySide6.QtWidgets import QLineEdit, QWidget, QSlider, QVBoxLayout, QPushButton, QDialog, QFormLayout, QLabel, QSpinBox, QDialogButtonBox, QCheckBox, QComboBox
 from PySide6.QtCore import Qt, Signal
+from .Foul import * #import foul for its signal
 
 class Settings(QWidget):
     scoreboard_resize = Signal(int)
     undo_signal = Signal()
+    
     game_configure = Signal(dict)
     gamestats_toggle = Signal(bool)
     playerstats_toggle = Signal(bool)
