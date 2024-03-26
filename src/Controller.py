@@ -22,14 +22,14 @@ class Controller:
         self.scorekeeper_ui.dartboard.dart_hit.connect(self.handle_dart_hit)
         self.scorekeeper_ui.settings.scoreboard_resize.connect(self.handle_scoreboard_resize)
         self.scorekeeper_ui.settings.undo_signal.connect(self.handle_undo)
-        self.scorekeeper_ui.foul.foul_signal.connect(self.handle_foul) #foul button
-        self.scorekeeper_ui.bounceout.bounceout_signal.connect(self.handle_bounceout) #bounceout button
+        self.scorekeeper_ui.foul_signal.connect(self.handle_foul) #foul button
+        self.scorekeeper_ui.bounceout_signal.connect(self.handle_bounceout) #bounceout button
+        self.scorekeeper_ui.settings.playerstats_toggle.connect(self.handle_display_player_stats)
         self.game.game_end.connect(self.handle_game_end)
         self.game.turn_switch.connect(self.handle_turn_switch)
 
         self.scorekeeper_ui.show()
         self.jumbotron_ui.show()
-        self.stats_window.show()
 
     def refresh_scoreboard(self):
         self.jumbotron_ui.scoreboard.refresh_scoreboard(self.game)
@@ -48,6 +48,7 @@ class Controller:
         self.scorekeeper_ui.dartboard.undo_clicked_point()
         self.jumbotron_ui.dartboard.undo_clicked_point()
         self.refresh_scoreboard()
+        
     def handle_foul(self): #in the event of a foul, clear the dart dots from the board and move onto the next player
         self.game.foul()
         self.refresh_scoreboard()
@@ -81,6 +82,9 @@ class Controller:
         best_of_matches = config.get('best_of_matches', 4)
         player1 = config.get('player1')
         player2 = config.get('player2')
+        date_of_match = config.get('date_of_match')
+        location_of_match = config.get('location_of_match')
+        official_name = config.get('official_name')
 
         player1_id, player1_name = config.get('player1').split(': ')
         player1_id = int(player1_id)
@@ -96,13 +100,16 @@ class Controller:
         players = [player1, player2]
 
         # Initialize game with new configuration
-        self.game = Game(players, starting_score, best_of_legs, best_of_matches)
+        self.game = Game(players, starting_score, best_of_legs, best_of_matches, date_of_match, location_of_match, official_name)
 
         self.game.game_end.connect(self.handle_game_end)
         self.game.turn_switch.connect(self.handle_turn_switch)
 
         self.refresh_scoreboard()
         self.handle_turn_switch()
+
+    def handle_display_player_stats(self, visibility):
+        self.stats_window.set_visibility(visibility)
         
     def handle_game_end(self):
         print("Game Over.")

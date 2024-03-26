@@ -19,12 +19,15 @@ class Game(QObject):
     game_end = Signal()
     turn_switch = Signal()
 
-    def __init__(self, players = [], starting_score = 501, best_of_legs = 14, best_of_matches = 4):
+    def __init__(self, players=[], starting_score=501, best_of_legs=14, best_of_matches=4, date_of_match=None, location_of_match=None, official_name=None):
         super().__init__()
         self.players = players
         self.starting_score = starting_score
         self.best_of_legs = best_of_legs
         self.best_of_matches = best_of_matches
+        self.date_of_match = date_of_match
+        self.location_of_match = location_of_match
+        self.official_name = official_name
         self.current_player_index = 0
         self.starting_player_index = 0
         self.turns = 0
@@ -110,4 +113,4 @@ class Game(QObject):
         self.current_player_index = (self.current_player_index + 1) % len(self.players)
     
     def bounceout(self): #score doesn't update 
-        self.update_score(0, 1) #maybe add a visual indicator that the dart did not stick to the board
+        self.update_score(0, 0) #maybe add a visual indicator that the dart did not stick to the board

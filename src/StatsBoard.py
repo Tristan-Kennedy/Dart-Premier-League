@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QLabel, QGridLayout, QWidget
+from PySide6.QtWidgets import QMainWindow, QLabel, QGridLayout, QWidget
 from PySide6.QtGui import QFont, QColor, QLinearGradient
 
 class StatisticsWindow(QMainWindow):
@@ -44,27 +44,36 @@ class StatisticsWindow(QMainWindow):
             self.layout.addWidget(stat_label, row, 0)
 
         # dummy stats p1
-        player1_stats = {
+        self.player1_stats = {
             "Total Games Played": 10,
             "Average Turns to Win": 12
         }
 
         # dummy stats p2
-        player2_stats = {
+        self.player2_stats = {
             "Total Games Played": 8,
             "Average Turns to Win": 15
         }
 
         # p1
-        for row, stat in enumerate(player1_stats.values(), start=1):
+        for row, stat in enumerate(self.player1_stats.values(), start=1):
             stat_label = QLabel(str(stat))
             stat_label.setFont(QFont("Arial", 12))
             stat_label.setStyleSheet("QLabel { border: 1px solid black; padding: 5px; background-color: white; }")
             self.layout.addWidget(stat_label, row, 1)
 
         # p2
-        for row, stat in enumerate(player2_stats.values(), start=1):
+        for row, stat in enumerate(self.player2_stats.values(), start=1):
             stat_label = QLabel(str(stat))
             stat_label.setFont(QFont("Arial", 12))
             stat_label.setStyleSheet("QLabel { border: 1px solid black; padding: 5px; background-color: white; }")
             self.layout.addWidget(stat_label, row, 2)
+
+        # Hide the window initially
+        self.hide()
+
+    def set_visibility(self, visible):
+        if visible:
+            self.show()
+        else:
+            self.hide()

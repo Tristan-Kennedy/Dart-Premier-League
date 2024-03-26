@@ -1,12 +1,9 @@
-from PySide6.QtWidgets import QLineEdit, QWidget, QSlider, QVBoxLayout, QPushButton, QDialog, QFormLayout, QLabel, QSpinBox, QDialogButtonBox, QCheckBox, QComboBox
-from PySide6.QtCore import Qt, Signal
-from .Foul import * #import foul for its signal
-from .Bounceout import * #import bounceout for its signal
+from PySide6.QtWidgets import QLineEdit, QWidget, QSlider, QVBoxLayout, QPushButton, QDialog, QFormLayout, QLabel, QSpinBox, QDialogButtonBox, QCheckBox, QComboBox, QDateEdit
+from PySide6.QtCore import Qt, Signal,  QDate
 
 class Settings(QWidget):
     scoreboard_resize = Signal(int)
     undo_signal = Signal()
-    
     game_configure = Signal(dict)
     gamestats_toggle = Signal(bool)
     playerstats_toggle = Signal(bool)
@@ -22,29 +19,37 @@ class Settings(QWidget):
 
         self.all_players = []
                 
+        # Slider for adjusting scoreboard size
+        self.slider_label = QLabel("Scoreboard Size:")
+        self.slider_label.setAlignment(Qt.AlignBottom)  # Align the label to the top
+        self.layout.addWidget(self.slider_label)
+
         self.slider = QSlider(Qt.Horizontal)
         self.slider.setMinimum(300)
         self.slider.setMaximum(800)
         self.slider.setValue(500)
+        self.slider.setTickPosition(QSlider.TicksBelow)
+        self.slider.setTickInterval(50)
         self.slider.valueChanged.connect(self.scoreboard_resize.emit)
         self.layout.addWidget(self.slider)
 
+        # Undo button
         self.undo_button = QPushButton('Undo')
         self.undo_button.clicked.connect(self.undo_signal.emit)  # Emit undo signal without any arguments
         self.layout.addWidget(self.undo_button)
 
-        # Add a button for game configuration
+        # Button for game configuration
         self.config_button = QPushButton("Configure Game Settings")
         self.config_button.clicked.connect(self.open_config_dialog)
         self.layout.addWidget(self.config_button)
 
-        # Add gamestats toggle
+        # Gamestats toggle
         self.gamestats_checkbox = QCheckBox("Show Game Stats")
         self.gamestats_checkbox.setChecked(False)
         self.gamestats_checkbox.stateChanged.connect(self.toggle_gamestats)
         self.layout.addWidget(self.gamestats_checkbox)
 
-        # Add playerstats toggle
+        # Playerstats toggle
         self.playerstats_checkbox = QCheckBox("Show Player Stats")
         self.playerstats_checkbox.setChecked(False)
         self.playerstats_checkbox.stateChanged.connect(self.toggle_playerstats)
@@ -66,6 +71,16 @@ class Settings(QWidget):
         best_of_matches_input = QSpinBox()
         best_of_matches_input.setRange(1, 10)
         layout.addRow(QLabel("Best of Sets:"), best_of_matches_input)
+
+        date_input = QDateEdit(QDate.currentDate())
+        date_input.setCalendarPopup(True)
+        layout.addRow(QLabel("Date of Match:"), date_input)
+
+        location_input = QLineEdit()
+        layout.addRow(QLabel("Location of Match:"), location_input)
+
+        official_names_input = QLineEdit()
+        layout.addRow(QLabel("Official Name:"), official_names_input)
 
         self.player1_dropdown = QComboBox()
         self.player2_dropdown = QComboBox()
@@ -98,6 +113,9 @@ class Settings(QWidget):
                 'starting_score': starting_score_input.value(),
                 'best_of_legs': best_of_legs_input.value(),
                 'best_of_matches': best_of_matches_input.value(),
+                'date_of_match': date_input.date().toString("yyyy-MM-dd"),
+                'location_of_match': location_input.text(),
+                'official_name': official_names_input.text(),
                 'player1': self.player1_dropdown.currentText(),
                 'player2': self.player2_dropdown.currentText()            
             })
@@ -161,7 +179,7 @@ class Settings(QWidget):
         self.player2_dropdown.addItems(self.all_players)
     
     def toggle_gamestats(self, state):
-        self.gamestats_toggle.emit(state == Qt.Checked)
+        self.gamestats_toggle.emit(state == 2)
 
     def toggle_playerstats(self, state):
-        self.playerstats_toggle.emit(state == Qt.Checked)
+        self.playerstats_toggle.emit(state == 2)
