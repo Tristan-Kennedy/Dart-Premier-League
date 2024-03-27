@@ -1,17 +1,15 @@
-from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QPushButton, QWidget, QSizePolicy
+from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QPushButton, QWidget, QSizePolicy, QMessageBox
 from PySide6.QtCore import Signal
 from .Dartboard import *
 from .Settings import *
 
 class ScorekeeperUI(QMainWindow):
     bounceout_signal = Signal()
-    knockout_click = Signal()
     foul_signal = Signal()
     
     def __init__(self):
         super().__init__()
 
-        # Create a Dartboard instance
         self.dartboard = Dartboard(clickable=True)
         self.settings = Settings()
 
@@ -21,7 +19,7 @@ class ScorekeeperUI(QMainWindow):
         self.bounceout_button = QPushButton("Bounceout")
 
         # Connect button clicks to custom slots emitting signals
-        self.knockout_button.clicked.connect(self.emit_knockout_signal)
+        self.knockout_button.clicked.connect(self.knockout)
         self.foul_button.clicked.connect(self.emit_foul_signal)
         self.bounceout_button.clicked.connect(self.emit_bounceout_signal)
 
@@ -58,8 +56,9 @@ class ScorekeeperUI(QMainWindow):
         self.setWindowTitle('Scorekeeper Window')
         self.setGeometry(0, 50, 800, 800)
 
-    def emit_knockout_signal(self):
-        self.knockout_click.emit()  # Adjust argument as needed
+    def knockout(self):
+        self.dartboard.knockout_mode = True
+        QMessageBox.information(self, "Knockout", "Click on the dart to be knocked out.")
 
     def emit_foul_signal(self):
         self.foul_signal.emit()  # Adjust argument as needed

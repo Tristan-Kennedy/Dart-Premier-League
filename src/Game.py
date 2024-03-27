@@ -109,6 +109,11 @@ class Game(QObject):
             current_player.score = current_player.previous_score
             self.bust = True
 
+    def update_score_knockout(self, multiplier, wedge_value):
+        self.store_game_state()
+        current_player = self.players[self.current_player_index]
+        current_player.score += multiplier * wedge_value
+
     def foul(self): #skip the current player's turn 
         self.current_player_index = (self.current_player_index + 1) % len(self.players)
     
