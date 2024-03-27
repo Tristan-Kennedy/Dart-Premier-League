@@ -45,7 +45,7 @@ class Controller:
         self.refresh_jumbotron_dartboard()
     
     def handle_turn_switch(self):
-        self.jumbotron_ui.dartboard.clear_clicked_points()
+        self.scorekeeper_ui.dartboard.clear_clicked_points()
         self.refresh_jumbotron_dartboard()
 
     def handle_undo(self):
