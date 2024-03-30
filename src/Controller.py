@@ -26,9 +26,12 @@ class Controller:
         self.scorekeeper_ui.foul_signal.connect(self.handle_foul) #foul button
         self.scorekeeper_ui.bounceout_signal.connect(self.handle_bounceout) #bounceout button
         self.scorekeeper_ui.settings.playerstats_toggle.connect(self.handle_display_player_stats)
-        self.game.game_end.connect(self.handle_game_end)
-        self.game.turn_switch.connect(self.handle_turn_switch)
+        self.scorekeeper_ui.show_leaderboard_signal.connect(self.handle_show_leaderboard)
 
+        # If the game is still None at this point it did not initialize correctly and the program should exit.
+        if(self.game == None):
+            sys.exit()
+            
         self.scorekeeper_ui.show()
         self.jumbotron_ui.show()
 
@@ -121,6 +124,8 @@ class Controller:
         self.stats_window.set_visibility(visibility)
         
     def handle_game_end(self):
-        print("Game Over.")
-        sys.exit()
+        self.scorekeeper_ui.show_leaderboard_dialog()
+        self.scorekeeper_ui.hide()
 
+    def handle_show_leaderboard(self):
+        self.jumbotron_ui.enable_leaderboard()

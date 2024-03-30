@@ -6,7 +6,8 @@ from .Settings import *
 class ScorekeeperUI(QMainWindow):
     bounceout_signal = Signal()
     foul_signal = Signal()
-    
+    show_leaderboard_signal = Signal()
+
     def __init__(self):
         super().__init__()
 
@@ -28,7 +29,6 @@ class ScorekeeperUI(QMainWindow):
         button_layout.addWidget(self.knockout_button)
         button_layout.addWidget(self.foul_button)
         button_layout.addWidget(self.bounceout_button)
-
         # Set the stretch factors for the buttons
         self.knockout_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.foul_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -65,3 +65,9 @@ class ScorekeeperUI(QMainWindow):
 
     def emit_bounceout_signal(self):
         self.bounceout_signal.emit()  # Adjust argument as needed
+
+    def show_leaderboard_dialog(self):
+        reply = QMessageBox.question(self, 'Show Leaderboard', 'Do you want to show the leaderboard?', 
+                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            self.show_leaderboard_signal.emit()
