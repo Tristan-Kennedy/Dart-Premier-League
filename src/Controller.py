@@ -2,14 +2,16 @@ from .JumbotronUI import *
 from .ScorekeeperUI import *
 from .Game import *
 from .Database import *
-from .StatsBoard import *
+from .PlayerStatsBoard import *
+from .GameStatsBoard import *
 import sys
 
 class Controller:
     def __init__(self):
         self.scorekeeper_ui = ScorekeeperUI()
         self.jumbotron_ui = JumbotronUI()
-        self.stats_window = StatisticsWindow()
+        self.player_stats_window = PlayerStatisticsWindow()
+        self.game_stats_window = GameStatisticsWindow()
         self.database = Database()
         self.game = None
 
@@ -26,6 +28,7 @@ class Controller:
         self.scorekeeper_ui.foul_signal.connect(self.handle_foul) #foul button
         self.scorekeeper_ui.bounceout_signal.connect(self.handle_bounceout) #bounceout button
         self.scorekeeper_ui.settings.playerstats_toggle.connect(self.handle_display_player_stats)
+        self.scorekeeper_ui.settings.gamestats_toggle.connect(self.handle_display_game_stats)
         self.scorekeeper_ui.show_leaderboard_signal.connect(self.handle_show_leaderboard)
 
         # If the game is still None at this point it did not initialize correctly and the program should exit.
@@ -37,6 +40,9 @@ class Controller:
 
     def refresh_scoreboard(self):
         self.jumbotron_ui.scoreboard.refresh_scoreboard(self.game)
+    
+    def refresh_game_stats_board(self):
+        self.game_stats_window.refresh_stat_board(self.game)
 
     def refresh_jumbotron_dartboard(self):
         self.jumbotron_ui.dartboard.clicked_points = self.scorekeeper_ui.dartboard.clicked_points
@@ -46,6 +52,7 @@ class Controller:
         self.game.update_score(multiplier, wedge_value)
         self.refresh_scoreboard()
         self.refresh_jumbotron_dartboard()
+        self.refresh_game_stats_board()
     
     def handle_turn_switch(self):
         self.scorekeeper_ui.dartboard.clear_clicked_points()
@@ -56,19 +63,23 @@ class Controller:
         self.refresh_jumbotron_dartboard()
         self.game.undo()
         self.refresh_scoreboard()
+        self.refresh_game_stats_board()
         
     def handle_foul(self): #in the event of a foul, clear the dart dots from the board and move onto the next player
         self.game.foul()
         self.refresh_scoreboard()
+        self.refresh_game_stats_board()
         self.handle_turn_switch()
     
     def handle_bounceout(self): #in the event of a bounceout, the current turn scores 0
         self.game.bounceout()
         self.refresh_scoreboard()
+        self.refresh_game_stats_board()
 
     def handle_knockout(self, multiplier, wedge_value):
         self.game.update_score_knockout(multiplier, wedge_value)
         self.refresh_scoreboard()
+        self.refresh_game_stats_board()
         self.refresh_jumbotron_dartboard()
 
     def handle_scoreboard_resize(self, new_size):
@@ -120,8 +131,11 @@ class Controller:
         self.refresh_scoreboard()
         self.handle_turn_switch()
 
-    def handle_display_player_stats(self, visibility):
-        self.stats_window.set_visibility(visibility)
+    def handle_display_player_stats(self, p_visibility):
+        self.player_stats_window.set_visibility(p_visibility)
+
+    def handle_display_game_stats(self, g_visibility):
+        self.game_stats_window.set_visibility(g_visibility)
         
     def handle_game_end(self):
         self.scorekeeper_ui.show_leaderboard_dialog()

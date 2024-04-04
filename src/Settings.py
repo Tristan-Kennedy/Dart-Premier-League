@@ -7,6 +7,7 @@ class Settings(QWidget):
     game_configure = Signal(dict)
     gamestats_toggle = Signal(bool)
     playerstats_toggle = Signal(bool)
+    gamestats_toggle = Signal(bool)
     add_player_signal = Signal(dict)
     get_players_signal = Signal()
     delete_player_signal = Signal(int)

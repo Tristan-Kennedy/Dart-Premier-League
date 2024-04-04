@@ -34,6 +34,14 @@ class Game(QObject):
         self.game_states = []
         self.bust = False
         self.leg_end = False
+#############################
+        self.turn_counter = 0
+        self.total_turn_scores = 0
+        self.avg_score_per_turn = 0
+        self.avg_turn_score = 0
+        self.num_180s = 0
+        self.current_turn_score = 0
+        self.lowest_turn_score = 999
 
     def on_leg_complete(self):
         for player in self.players:
@@ -88,13 +96,24 @@ class Game(QObject):
 
         if self.bust or self.turns == 3:
             current_player.previous_score = current_player.score
+            ################################
+            self.turn_counter += 1
+            self.total_turn_scores += self.current_turn_score
+            self.avg_score_per_turn = self.total_turn_scores / self.turn_counter
+            if self.lowest_turn_score > self.current_turn_score:
+                self.lowest_turn_score = self.current_turn_score
+            if self.current_turn_score == 180:
+                self.num_180s += 1
             self.turns = 0
             self.current_player_index = (self.current_player_index + 1) % len(self.players)
             self.turn_switch.emit()
 
         current_player = self.players[self.current_player_index]
         current_player.score -= multiplier * wedge_value
+        ###############################################
+        self.current_turn_score = current_player.previous_score - current_player.score # get current turn score
         self.turns += 1
+        self.avg_turn_score = self.current_turn_score / self.turns  # average of this turn
 
         self.bust = False
         if current_player.score == 0 and multiplier == 2:

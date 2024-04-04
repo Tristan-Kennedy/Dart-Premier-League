@@ -25,7 +25,7 @@ class JumbotronUI(QMainWindow):
         self.setCentralWidget(central_widget)
 
         self.setWindowTitle('Jumbotron Window')
-        self.setGeometry(1000, 50, 500, 750)
+        self.setGeometry(850, 50, 500, 750)
 
     def enable_leaderboard(self):
         # Remove the dartboard and settings
