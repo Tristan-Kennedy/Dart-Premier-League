@@ -109,13 +109,13 @@ class Controller:
         location_of_match = config.get('location_of_match')
         official_name = config.get('official_name')
 
-        player1_id, player1_name = config.get('player1').split(': ')
+        player1_id, player1_name = config.get('player1').split(':', 1)
         player1_id = int(player1_id)
-        player1_first_name, player1_last_name = player1_name.split(' ')
+        player1_first_name, player1_last_name = player1_name.strip().split(' ', 1)
 
-        player2_id, player2_name = config.get('player2').split(': ')
+        player2_id, player2_name = config.get('player2').split(':', 1)
         player2_id = int(player2_id)
-        player2_first_name, player2_last_name = player2_name.split(' ')
+        player2_first_name, player2_last_name = player2_name.strip().split(' ', 1)
 
         player1 = Player(player1_first_name, player1_last_name, player1_id, starting_score)
         player2 = Player(player2_first_name, player2_last_name, player2_id, starting_score)
