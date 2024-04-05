@@ -10,6 +10,7 @@ class Player:
         self.previous_score = starting_score
         self.legs_won = 0
         self.matches_won = 0
+        self.total_throws = 0
     
     def get_playerID(self):
         return self.get_playerID
@@ -47,12 +48,14 @@ class Game(QObject):
         for player in self.players:
             player.score = self.starting_score
             player.previous_score = self.starting_score
+            player.total_throws = 0 #reset the number of darts thrown
         self.turns = 0
         self.leg_end = True
 
     def on_match_complete(self):
         for player in self.players:
             player.legs_won = 0
+            player.total_throws = 0 #reset the number of darts thrown
         self.starting_player_index = 1
 
     def store_game_state(self):
@@ -64,7 +67,8 @@ class Game(QObject):
             'current_player_index': self.current_player_index,
             'starting_player_index': self.starting_player_index,
             'bust': self.bust,
-            'leg_end': self.leg_end
+            'leg_end': self.leg_end,
+            'throws': [player.total_throws for player in self.players]
         }
         self.game_states.append(game_state)
 
@@ -78,16 +82,18 @@ class Game(QObject):
         self.starting_player_index = game_state['starting_player_index']
         self.bust = game_state['bust']
         self.leg_end = game_state['leg_end']
+    
 
-        for player, score, legs_won, matches_won in zip(self.players, game_state['scores'], game_state['legs_won'], game_state['matches_won']):
+        for player, score, legs_won, matches_won, throws in zip(self.players, game_state['scores'], game_state['legs_won'], game_state['matches_won'], game_state['throws']):
             player.score = score
             player.legs_won = legs_won
             player.matches_won = matches_won
+            player.total_throws = throws
 
     def update_score(self, multiplier, wedge_value):
         self.store_game_state()
         current_player = self.players[self.current_player_index]
-        
+        current_player.total_throws += 1 #update the number of darts thrown for that player
         if self.leg_end:
             self.leg_end = False
             self.turn_switch.emit()

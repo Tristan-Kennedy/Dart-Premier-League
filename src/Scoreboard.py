@@ -1,13 +1,13 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFontMetrics, Qt
+from PySide6.QtGui import QFontMetrics
 
 class Scoreboard(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("ScoreBoard")
+        self.setWindowTitle("ScoreBoard") 
         self.scoreLabels = []
-        self.layout = QVBoxLayout()
+        self.layout = QVBoxLayout() 
         self.setLayout(self.layout)
         self.layout.setSpacing(0)  # Set the spacing between widgets to 0
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -18,7 +18,7 @@ class Scoreboard(QWidget):
         for header in ["", "SETS", "LEGS", " "]:
             label = QLabel(header)
             label.setStyleSheet("background-color: black; color: white; font: bold 14px")
-            if(label.text() != ""):
+            if label.text() != "":
                 label.setFixedWidth(50)
             label.setAlignment(Qt.AlignCenter)
             header_layout.addWidget(label)
@@ -33,7 +33,6 @@ class Scoreboard(QWidget):
         self.footer_layout.addWidget(self.footer_label)
 
     def throws_to_win(self, target_score):
-        
         # Define available throws
         available_throws = [
             [20, 3], [19, 3], [18, 3], [17, 3], [16, 3], [15, 3],
@@ -49,41 +48,41 @@ class Scoreboard(QWidget):
             [8, 1], [7, 1], [6, 1], [5, 1], [4, 1], [3, 1],
             [2, 1], [1, 1],
         ]  # throws are stored as their value + the multiplier
-        
+
         throw_types = {1: '', 2: 'D', 3: 'T'}  # dictionary mapping multiplier to their literal
-        
+
         # memo table speeds things up tremendously
         memo = {}  # initialize the memo table
         memo[0] = []
-        
+
         for score in range(1, target_score + 1):  # iterate through the score
             best_combination = None  # initialize our best combo
-            
+
             # Try all possible throws and update the best combination for the current score
             for throw, multiplier in available_throws:
                 if score - throw * multiplier >= 0:
                     if memo[score - throw * multiplier] is not None:
                         combination = memo[score - throw * multiplier] + [(throw, multiplier)]  # big time saver: check the memo table to see if we already have an entry for that remaining score have an entry for the current
-                        
+
                         if score == target_score and multiplier != 2:  # you can only win on a double as far as I know. So if the last throw isn't a double, skip it
                             continue
                         if best_combination is None or len(combination) < len(best_combination):
                             best_combination = combination
             memo[score] = best_combination  # store the results in the memo table for future reference
-        
+
         # Convert the combination to include throw types
         throw_combination = []
         for throw, multiplier in memo[target_score]:
             throw_type = throw_types[multiplier]
             throw_combination.append((throw, throw_type))
-        
+
         # Return the best combination for the target score
         return throw_combination
 
     def refresh_scoreboard(self, game):
         # Clear existing labels
-        for label in self.scoreLabels:
-            for item in label:
+        for label_list in self.scoreLabels:
+            for item in label_list:
                 item.deleteLater()  # Delete label from the layout and release resources
         self.scoreLabels = []  # Clear the list of labels
 
@@ -92,7 +91,14 @@ class Scoreboard(QWidget):
 
         # Update footer
         self.footer_label.setText(f"First to {game.best_of_matches} Sets")
-
+        label_texts = []
+        for player in game.players:
+            perfect_throws = len(self.throws_to_win(player.starting_score)) 
+            if player.total_throws + len(self.throws_to_win(player.score)) <= perfect_throws:
+                perfect_leg_text = "PERFECT LEG"    
+            else: 
+                perfect_leg_text = "NOT PERFECT LEG"
+            label_texts.append(perfect_leg_text)
         # Add or update labels based on the players
         for i, player in enumerate(game.players):
             # Create a horizontal layout for each player (row)
@@ -104,7 +110,7 @@ class Scoreboard(QWidget):
             matches_won_label = QLabel(str(player.matches_won))
             legs_won_label = QLabel(str(player.legs_won))
             score_label = QLabel(str(player.score))
-
+            perfect_leg_label = QLabel()
             # Set fixed width and elide text if necessary
             for label in [matches_won_label, legs_won_label, score_label]:
                 label.setFixedWidth(50)
@@ -128,10 +134,9 @@ class Scoreboard(QWidget):
                     player_label.setText(player_label.text() + " WINNER")
             else:
                 player_label.setStyleSheet("border: 1px solid black; padding: 5px; font: bold 14px")
-            
+
             # Add labels to the row layout
             row_layout.addWidget(player_label)
-
             # Create a label for throws to win
             if player.score <= 170:
                 ttw = self.throws_to_win(player.score)
@@ -140,6 +145,20 @@ class Scoreboard(QWidget):
                 ttw_label.setStyleSheet("background-color: green; color: white; border: 1px solid black; padding: 5px; font: bold 14px")
                 row_layout.addWidget(ttw_label)
 
+            # Determine if it's a perfect leg
+            perfect_throws = len(self.throws_to_win(player.starting_score))
+           
+            if player.total_throws + len(self.throws_to_win(player.score)) <= perfect_throws:
+                perfect_leg_text = "PERFECT LEG"  
+                perfect_leg_label.setText(perfect_leg_text)  # set text for perfect leg label
+                perfect_leg_label.setStyleSheet("background-color: blue; color: white; border: 1px solid black; padding: 5px; font: bold 14px")
+            else :
+                perfect_leg_text = "NOT PERFECT LEG"
+                perfect_leg_label.setText(perfect_leg_text)  # set text for perfect leg label
+                perfect_leg_label.setStyleSheet("background-color: red; color: white; border: 1px solid black; padding: 5px; font: bold 14px")
+            #perfect_leg_label = QLabel()
+            
+            row_layout.addWidget(perfect_leg_label)
             row_layout.addWidget(matches_won_label)
             row_layout.addWidget(legs_won_label)
             row_layout.addWidget(score_label)
@@ -148,7 +167,7 @@ class Scoreboard(QWidget):
             self.layout.addLayout(row_layout)
 
             # Store the labels for later updates
-            self.scoreLabels.append([player_label, ttw_label, matches_won_label, legs_won_label, score_label])
+            self.scoreLabels.append([player_label, ttw_label, matches_won_label, legs_won_label, score_label, perfect_leg_label])
 
         # Add the footer layout to the main layout
         self.layout.addLayout(self.footer_layout)
