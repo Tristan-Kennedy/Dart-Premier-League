@@ -1,5 +1,8 @@
-from PySide6.QtWidgets import QLineEdit, QWidget, QSlider, QVBoxLayout, QPushButton, QDialog, QFormLayout, QLabel, QSpinBox, QDialogButtonBox, QCheckBox, QComboBox, QDateEdit
+from PySide6.QtWidgets import QLineEdit, QWidget, QSlider, QVBoxLayout, QPushButton, QDialog, QFormLayout, QLabel, QSpinBox, QDialogButtonBox, QCheckBox, QComboBox, QDateEdit, QFileDialog
 from PySide6.QtCore import Qt, Signal,  QDate
+from PySide6.QtGui import QPixmap
+import os
+from shutil import copyfile
 
 class Settings(QWidget):
     scoreboard_resize = Signal(int)
@@ -10,6 +13,7 @@ class Settings(QWidget):
     gamestats_toggle = Signal(bool)
     add_player_signal = Signal(dict)
     get_players_signal = Signal()
+    get_player_signal = Signal(int)
     delete_player_signal = Signal(int)
 
     def __init__(self):
@@ -19,6 +23,7 @@ class Settings(QWidget):
         self.setLayout(self.layout)
 
         self.all_players = []
+        self.current_player_info = None
                 
         # Slider for adjusting scoreboard size
         self.slider_label = QLabel("Scoreboard Size:")
@@ -91,9 +96,9 @@ class Settings(QWidget):
         layout.addRow(QLabel("Player 1:"), self.player1_dropdown)
         layout.addRow(QLabel("Player 2:"), self.player2_dropdown)
 
-        add_player_button = QPushButton("Add New Player")
-        add_player_button.clicked.connect(self.open_add_player_dialog)
-        layout.addRow(add_player_button)
+        league_management_button = QPushButton("League Management")
+        league_management_button.clicked.connect(self.open_league_management_dialog)
+        layout.addRow(league_management_button)
 
         remove_player_button = QPushButton("Delete Player")
         remove_player_button.clicked.connect(self.open_remove_player_dialog)
@@ -120,17 +125,19 @@ class Settings(QWidget):
                 'player2': self.player2_dropdown.currentText()            
             })
 
-    def open_add_player_dialog(self):
+    def open_league_management_dialog(self):
         dialog = QDialog()
         layout = QFormLayout()
 
         dialog.setLayout(layout)
-        dialog.setWindowTitle("Add Player")
+        dialog.setWindowTitle("League Management")
 
-        first_name_input = QLineEdit()
-        layout.addRow(QLabel("First Name:"), first_name_input)
-        last_name_input = QLineEdit()
-        layout.addRow(QLabel("Last Name:"), last_name_input)
+        self.select_dropdown = QComboBox()
+        self.get_players_signal.emit()
+        self.select_dropdown.addItem("New Player")
+        self.select_dropdown.addItems(self.all_players)
+
+        layout.addRow(QLabel("Select a Player to Manage:"), self.select_dropdown)
 
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(dialog.accept)
@@ -139,11 +146,83 @@ class Settings(QWidget):
 
         result = dialog.exec()
         if result == QDialog.Accepted:
-            self.add_player_signal.emit({
+            player_name = self.select_dropdown.currentText()
+            if player_name == "New Player":
+                self.open_profile_dialog()
+            else:
+                player_id, _ = player_name.split(': ')
+                self.get_player_signal.emit(int(player_id))
+                self.open_profile_dialog(self.current_player_info)
+
+    def open_profile_dialog(self, player_info = None):
+        dialog = QDialog()
+        layout = QFormLayout()
+        self.image_path = None
+
+        dialog.setLayout(layout)
+        dialog.setWindowTitle("Profile")
+
+        first_name_input = QLineEdit()
+        last_name_input = QLineEdit()
+        country_input = QLineEdit()
+
+        self.profile_image_label = QLabel()
+        self.profile_image_label.setFixedSize(200, 200)
+        self.profile_image_label.setStyleSheet("border: 1px solid black;")
+
+        upload_button = QPushButton("Upload Image")
+        upload_button.clicked.connect(self.upload_image)
+
+        layout.addRow(QLabel("Profile Image:"), self.profile_image_label)
+        layout.addRow(upload_button)
+        layout.addRow(QLabel("First Name:"), first_name_input)
+        layout.addRow(QLabel("Last Name:"), last_name_input)
+        layout.addRow(QLabel("Country:"), country_input)
+
+        if player_info:
+            first_name_input.setText(str(player_info[1]))
+            last_name_input.setText(str(player_info[2]))
+            country_input.setText(str(player_info[3]))
+            self.profile_image_label.setPixmap(QPixmap(player_info[4]).scaled(200, 200))
+
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+        layout.addRow(button_box)
+
+        result = dialog.exec()
+        if result == QDialog.Accepted:
+            player_data = {
                 'first_name': first_name_input.text(),
-                'last_name': last_name_input.text()         
-            })
+                'last_name': last_name_input.text(),
+                'country': country_input.text(),
+                'profile_path': self.image_path if self.image_path else (player_info[4] if player_info else ""),
+            }
+            if player_info:
+                player_data['id'] = player_info[0]
+            self.add_player_signal.emit(player_data)
             self.update_dropdowns()
+
+    def upload_image(self):
+        file_dialog = QFileDialog()
+        file_dialog.setNameFilter("Images (*.png *.jpg *.bmp)")
+        if file_dialog.exec_():
+            file_path = file_dialog.selectedFiles()[0]
+            # Get the filename from the full path
+            filename = os.path.basename(file_path)
+            # Destination directory for storing profile pictures
+            profile_pictures_dir = "profile_pictures"
+            # Create the directory if it doesn't exist
+            os.makedirs(profile_pictures_dir, exist_ok=True)
+            # Destination path for copying the file
+            destination_path = os.path.join(profile_pictures_dir, filename)
+            # Copy the file to the destination path
+            copyfile(file_path, destination_path)
+            # Set the pixmap and update the label
+            pixmap = QPixmap(destination_path)
+            self.profile_image_label.setPixmap(pixmap.scaled(200, 200))
+            # Set a member variable to store the image path
+            self.image_path = destination_path
 
     def open_remove_player_dialog(self):
         dialog = QDialog()

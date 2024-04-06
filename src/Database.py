@@ -17,7 +17,9 @@ class Database:
             '''CREATE TABLE IF NOT EXISTS players(
                 playerID INTEGER PRIMARY KEY,
                 firstName TEXT NOT NULL,
-                lastName TEXT NOT NULL
+                lastName TEXT NOT NULL,
+                country TEXT NOT NULL,
+                profile_path TEXT NOT NULL
                 );'''
         )
 
@@ -33,17 +35,23 @@ class Database:
         conn.commit()
         conn.close()
 
-    def addNewPlayer(self, fName, lName):
-        conn = sq.connect('dartsDatabase.db')  # Defines the connection to the db file, creates the file if it doesn't exist  
-        cursor = conn.cursor()  # Corrected: Added missing parentheses to make it a method call
+    def addOrUpdatePlayer(self, fName, lName, country, profile_path, id=None):
+        conn = sq.connect('dartsDatabase.db')
+        cursor = conn.cursor()
 
-        query = '''INSERT INTO players (firstName, lastName)
-                    VALUES (?,?);'''
-        
-        cursor.execute(query, (fName, lName))
+        if id is None:
+            query = '''INSERT INTO players (firstName, lastName, country, profile_path)
+                        VALUES (?,?,?,?);'''
+            cursor.execute(query, (fName, lName, country, profile_path))
+        else:
+            query = '''UPDATE players
+                    SET firstName=?, lastName=?, country=?, profile_path=?
+                    WHERE playerID=?;'''
+            cursor.execute(query, (fName, lName, country, profile_path, id))
 
         conn.commit()
         conn.close()
+
 
     def removePlayer(self, playerID):
         conn = sq.connect('dartsDatabase.db')
@@ -69,8 +77,20 @@ class Database:
         conn.close()
         
         return players
+    
+    def get_player(self, id):
+        conn = sq.connect('dartsDatabase.db')
+        cursor = conn.cursor()
 
+        query = 'SELECT * FROM players WHERE playerID = ?'
 
+        cursor.execute(query, (id,))
+        player = cursor.fetchone()
+
+        conn.close()
+        
+        return player
+    
     # A function to check if player is in database
     def inDatabase(self, fName, lName):
         conn = sq.connect('dartsDatabase.db')

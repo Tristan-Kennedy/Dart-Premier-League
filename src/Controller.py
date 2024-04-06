@@ -17,6 +17,7 @@ class Controller:
 
         self.scorekeeper_ui.settings.add_player_signal.connect(self.handle_add_player)
         self.scorekeeper_ui.settings.get_players_signal.connect(self.handle_get_players)
+        self.scorekeeper_ui.settings.get_player_signal.connect(self.handle_get_player)
         self.scorekeeper_ui.settings.delete_player_signal.connect(self.handle_delete_player)
         self.scorekeeper_ui.settings.game_configure.connect(self.handle_configure_game)
         self.scorekeeper_ui.settings.open_config_dialog() # Open the configuration dialog before the rest as it initializes the game
@@ -86,14 +87,18 @@ class Controller:
         self.jumbotron_ui.resize(new_size, new_size * 1.5)
 
     def handle_add_player(self, player):
-        self.database.addNewPlayer(player.get('first_name'), player.get('last_name'))
+        self.database.addOrUpdatePlayer(player.get('first_name'), player.get('last_name'), player.get('country'), player.get('profile_path'), player.get('id'))
         self.handle_get_players() # Call after adding to get the new player in the dropdowns
     
     def handle_get_players(self):
         players = self.database.get_all_players()
         # Convert each tuple into a string
-        players = ['{}: {} {}'.format(id, first_name, last_name) for id, first_name, last_name in players]
+        players = ['{}: {} {}'.format(player[0], player[1], player[2]) for player in players]
         self.scorekeeper_ui.settings.all_players = players
+    
+    def handle_get_player(self, id):
+        player = self.database.get_player(id)
+        self.scorekeeper_ui.settings.current_player_info = player
     
     def handle_delete_player(self, player_id):
         self.database.removePlayer(player_id)
