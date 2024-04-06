@@ -60,9 +60,8 @@ class Settings(QWidget):
         dialog = QDialog()
         layout = QFormLayout()
 
-        starting_score_input = QSpinBox()
-        starting_score_input.setRange(301, 801)
-        starting_score_input.setSingleStep(100)
+        starting_score_input = QComboBox()
+        starting_score_input.addItems(["301", "501", "801"])
         layout.addRow(QLabel("Starting Score:"), starting_score_input)
 
         best_of_legs_input = QSpinBox()
@@ -111,7 +110,7 @@ class Settings(QWidget):
         result = dialog.exec()
         if result == QDialog.Accepted:
             self.game_configure.emit({
-                'starting_score': starting_score_input.value(),
+                'starting_score': int(starting_score_input.currentText()),
                 'best_of_legs': best_of_legs_input.value(),
                 'best_of_matches': best_of_matches_input.value(),
                 'date_of_match': date_input.date().toString("yyyy-MM-dd"),

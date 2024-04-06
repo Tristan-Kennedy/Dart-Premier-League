@@ -91,26 +91,21 @@ class Scoreboard(QWidget):
 
         # Update footer
         self.footer_label.setText(f"First to {game.best_of_matches} Sets")
-        label_texts = []
-        for player in game.players:
-            perfect_throws = len(self.throws_to_win(player.starting_score)) 
-            if player.total_throws + len(self.throws_to_win(player.score)) <= perfect_throws:
-                perfect_leg_text = "PERFECT LEG"    
-            else: 
-                perfect_leg_text = "NOT PERFECT LEG"
-            label_texts.append(perfect_leg_text)
+
         # Add or update labels based on the players
         for i, player in enumerate(game.players):
             # Create a horizontal layout for each player (row)
             row_layout = QHBoxLayout()
 
             # Create labels for each data field (cell)
-            player_label = QLabel(f"{player.fName} {player.lName}")
+            if player.total_throws + len(self.throws_to_win(player.score)) <= len(self.throws_to_win(player.starting_score)) and player.total_throws != 0:
+                player_label = QLabel(f"🔥{player.fName} {player.lName}🔥")
+            else:
+                player_label = QLabel(f"{player.fName} {player.lName}")
             ttw_label = QLabel()
             matches_won_label = QLabel(str(player.matches_won))
             legs_won_label = QLabel(str(player.legs_won))
             score_label = QLabel(str(player.score))
-            perfect_leg_label = QLabel()
             # Set fixed width and elide text if necessary
             for label in [matches_won_label, legs_won_label, score_label]:
                 label.setFixedWidth(50)
@@ -144,21 +139,7 @@ class Scoreboard(QWidget):
                 ttw_label.setText(ttw_text)
                 ttw_label.setStyleSheet("background-color: green; color: white; border: 1px solid black; padding: 5px; font: bold 14px")
                 row_layout.addWidget(ttw_label)
-
-            # Determine if it's a perfect leg
-            perfect_throws = len(self.throws_to_win(player.starting_score))
-           
-            if player.total_throws + len(self.throws_to_win(player.score)) <= perfect_throws:
-                perfect_leg_text = "PERFECT LEG"  
-                perfect_leg_label.setText(perfect_leg_text)  # set text for perfect leg label
-                perfect_leg_label.setStyleSheet("background-color: blue; color: white; border: 1px solid black; padding: 5px; font: bold 14px")
-            else :
-                perfect_leg_text = "NOT PERFECT LEG"
-                perfect_leg_label.setText(perfect_leg_text)  # set text for perfect leg label
-                perfect_leg_label.setStyleSheet("background-color: red; color: white; border: 1px solid black; padding: 5px; font: bold 14px")
-            #perfect_leg_label = QLabel()
             
-            row_layout.addWidget(perfect_leg_label)
             row_layout.addWidget(matches_won_label)
             row_layout.addWidget(legs_won_label)
             row_layout.addWidget(score_label)
@@ -167,7 +148,7 @@ class Scoreboard(QWidget):
             self.layout.addLayout(row_layout)
 
             # Store the labels for later updates
-            self.scoreLabels.append([player_label, ttw_label, matches_won_label, legs_won_label, score_label, perfect_leg_label])
+            self.scoreLabels.append([player_label, ttw_label, matches_won_label, legs_won_label, score_label])
 
         # Add the footer layout to the main layout
         self.layout.addLayout(self.footer_layout)

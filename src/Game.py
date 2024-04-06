@@ -93,7 +93,6 @@ class Game(QObject):
     def update_score(self, multiplier, wedge_value):
         self.store_game_state()
         current_player = self.players[self.current_player_index]
-        current_player.total_throws += 1 #update the number of darts thrown for that player
         if self.leg_end:
             self.leg_end = False
             self.turn_switch.emit()
@@ -116,6 +115,7 @@ class Game(QObject):
 
         current_player = self.players[self.current_player_index]
         current_player.score -= multiplier * wedge_value
+        current_player.total_throws += 1 #update the number of darts thrown for that player
         ###############################################
         self.current_turn_score = current_player.previous_score - current_player.score # get current turn score
         self.turns += 1
