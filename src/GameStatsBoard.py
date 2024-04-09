@@ -34,7 +34,7 @@ class GameStatisticsWindow(QMainWindow):
             "Current Turn Average": 0,
             "Average Score / turn" : 0,
             "Number of 180s": 0,
-            "Lowest Turn Score": 999
+            "Lowest Turn Score": "---"
         }
         for row, stat in enumerate(self.game_stats.values(), start=1):
             stat_val = QLabel(str(stat))
