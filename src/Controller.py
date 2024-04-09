@@ -134,6 +134,8 @@ class Controller:
         self.game.game_end.connect(self.handle_game_end)
         self.game.turn_switch.connect(self.handle_turn_switch)
 
+        self.database.addGame(player1_id, player2_id, date_of_match, location_of_match, official_name, best_of_legs, best_of_matches)
+
         self.refresh_scoreboard()
         self.handle_turn_switch()
 
