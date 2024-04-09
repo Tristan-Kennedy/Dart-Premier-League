@@ -28,6 +28,8 @@ class Database:
             '''CREATE TABLE IF NOT EXISTS throws(
                 throwID INTEGER PRIMARY KEY,
                 points INTEGER,
+                legID INTEGER,
+                gameID INTEGER,
                 playerID INTEGER SECONDARY KEY
             );'''
         )
@@ -110,9 +112,11 @@ class Database:
         else:
             return False
 
-    def addThrow(self, points, playerID):
+    def addThrow(self, multiplier, wedge_value, playerID):
         conn = sq.connect('dartsDatabase.db')
         cursor = conn.cursor()
+
+        points = multiplier * wedge_value
 
         query = '''INSERT INTO throws (points, playerID)
                     VALUES (?,?);'''

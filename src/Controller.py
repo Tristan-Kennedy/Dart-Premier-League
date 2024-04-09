@@ -54,7 +54,8 @@ class Controller:
         self.refresh_scoreboard()
         self.refresh_jumbotron_dartboard()
         self.refresh_game_stats_board()
-    
+        self.database.addThrow(multiplier, wedge_value, self.game.players[self.game.current_player_index].playerID)
+
     def handle_turn_switch(self):
         self.scorekeeper_ui.dartboard.clear_clicked_points()
         self.refresh_jumbotron_dartboard()
