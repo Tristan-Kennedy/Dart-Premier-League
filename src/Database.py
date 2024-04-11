@@ -266,7 +266,7 @@ class Database:
         conn = sq.connect('dartsDatabase.db')
         cursor = conn.cursor()
         query = '''UPDATE players
-                    SET numberOf180s = ?
+                    SET numberOf180s = numberOf180s + ?
                     WHERE playerID = ?;'''
         cursor.execute(query, (num_one_eighties, playerID))
         conn.commit()
