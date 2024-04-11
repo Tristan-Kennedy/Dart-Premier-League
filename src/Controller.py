@@ -128,6 +128,9 @@ class Controller:
 
         players = [player1, player2]
 
+        self.update_games_played(player1_id)
+        self.update_games_played(player2_id)
+
         # Initialize game with new configuration
         self.game = Game(players, starting_score, best_of_legs, best_of_matches, date_of_match, location_of_match, official_name)
 
@@ -188,3 +191,6 @@ class Controller:
             playerID = three_dart_data['playerID'],
             avg = three_dart_data['threeDartAvg']
         )
+    
+    def update_games_played(self, playerID):
+        self.database.updateGamesPlayed(playerID)
