@@ -22,6 +22,8 @@ class Game(QObject):
     leg_complete_signal = Signal(object)
     match_complete_signal = Signal(object)
     update_three_dart_avg_signal = Signal(object)
+    update_wins_signal = Signal(int)
+    update_rank_signal = Signal()
 
     def __init__(self, players=[], starting_score=501, best_of_legs=14, best_of_matches=4, date_of_match=None, location_of_match=None, official_name=None):
         super().__init__()
@@ -169,6 +171,8 @@ class Game(QObject):
             if current_player.legs_won >= self.best_of_legs:
                 current_player.matches_won += 1
                 if current_player.matches_won >= self.best_of_matches:
+                    self.update_wins_signal.emit(self.players[self.current_player_index].playerID)
+                    self.update_rank_signal.emit()
                     self.game_end.emit()
                 self.on_match_complete()
             self.on_leg_complete()

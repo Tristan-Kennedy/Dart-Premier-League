@@ -19,9 +19,13 @@ class Database:
                 country TEXT NOT NULL,
                 profile_path TEXT NOT NULL,
                 threeDartAvg REAL,
-                gamesPlayed INTEGER
+                threeDartAvgTracker INTEGER, 
+                gamesPlayed INTEGER,
+                wins INTEGER,
+                rank INTEGER
                 );'''
         )
+
         # Create the 'throws' table
         cursor.execute(
             '''CREATE TABLE IF NOT EXISTS throws(
@@ -34,6 +38,7 @@ class Database:
                 playerID INTEGER SECONDARY KEY                
             );'''
         )
+
         # Create the 'games' table
         cursor.execute(
             '''CREATE TABLE IF NOT EXISTS games(
@@ -80,18 +85,18 @@ class Database:
         conn.commit()
         conn.close()
 
-    def addOrUpdatePlayer(self, fName, lName, country, profile_path, id=None, avg=None, gamesPlayed=0):
+    def addOrUpdatePlayer(self, fName, lName, country, profile_path, id=None, avg=0, avgTracker=0, gamesPlayed=0, wins=0, rank=None):
         conn = sq.connect('dartsDatabase.db')
         cursor = conn.cursor()
         if id is None:
-            query = '''INSERT INTO players (firstName, lastName, country, profile_path, gamesPlayed)
-                        VALUES (?,?,?,?,?);'''
-            cursor.execute(query, (fName, lName, country, profile_path, gamesPlayed))
+            query = '''INSERT INTO players (firstName, lastName, country, profile_path, threeDartAvg, threeDartAvgTracker, gamesPlayed, wins)
+                        VALUES (?,?,?,?,?,?,?,?);'''
+            cursor.execute(query, (fName, lName, country, profile_path, avg, avgTracker, gamesPlayed, wins))
         else:
             query = '''UPDATE players
-                    SET firstName=?, lastName=?, country=?, profile_path=?, gamesPlayed=?
+                    SET firstName=?, lastName=?, country=?, profile_path=?, threeDartAvg=?, threeDartAvgTracker=? ,gamesPlayed=?, wins=?
                     WHERE playerID=?;'''
-            cursor.execute(query, (fName, lName, country, profile_path, id))
+            cursor.execute(query, (fName, lName, country, profile_path, avg, avgTracker, gamesPlayed, wins, id))
         conn.commit()
         conn.close()
 
@@ -174,13 +179,40 @@ class Database:
         conn.commit()
         conn.close()
     
-    def updateThreeDartAvg(self, playerID, avg):
+    def updateThreeDartAvg(self, playerID, new_avg):
+        conn = sq.connect('dartsDatabase.db')
+        cursor = conn.cursor()
+
+        # Fetch the current average and the tracker count
+        cursor.execute('''
+            SELECT threeDartAvg, threeDartAvgTracker FROM players
+            WHERE playerID = ?;
+            ''', (playerID,))
+        result = cursor.fetchone()
+        if result:
+            current_avg, count = result
+            # Calculate the new average
+            if (count > 0)and (current_avg > 0) :  # Ensure there is at least one previous average to avoid division by zero
+                updated_avg = ((current_avg * count) + new_avg) / count
+            else:
+                updated_avg = new_avg
+
+            # Update the new average in the database
+            cursor.execute('''
+                UPDATE players
+                SET threeDartAvg = ?
+                WHERE playerID = ?;
+            ''', (updated_avg, playerID))
+            conn.commit()
+        conn.close()
+
+    def updateAvgTracker(self, playerID):
         conn = sq.connect('dartsDatabase.db')
         cursor = conn.cursor()
         query = '''UPDATE players
-                    SET threeDartAvg = ?
+                    SET threeDartAvgTracker = threeDartAvgTracker + 1
                     WHERE playerID = ?;'''
-        cursor.execute(query, (avg, playerID))
+        cursor.execute(query, (playerID,))
         conn.commit()
         conn.close()
 
@@ -194,6 +226,43 @@ class Database:
         cursor.execute(query, (playerID,))
         conn.commit()
 
+    def updateWins(self, playerID):
+        conn = sq.connect('dartsDatabase.db')
+        cursor = conn.cursor()
+        # update the wins column for the player by 1
+        query = '''UPDATE players
+                    SET wins = wins + 1
+                    WHERE playerID = ?;'''
+        cursor.execute(query, (playerID,))
+        conn.commit()
+        conn.close()
+
+    def updatePlayerRanks(self):
+        conn = sq.connect('dartsDatabase.db')
+        cursor = conn.cursor()
+        # Retrieve players ordered by wins in descending order
+        cursor.execute('''
+            SELECT playerID FROM players
+            ORDER BY wins DESC
+        ''')
+        players = cursor.fetchall()
+
+        # Update rank based on order in the result set
+        rank = 1
+        for player in players:
+            # Update the rank of the player
+            cursor.execute('''
+                UPDATE players
+                SET rank = ?
+                WHERE playerID = ?;
+            ''', (rank, player[0]))
+            rank += 1
+        
+        conn.commit()
+        conn.close()
+
+
+    
 
     
     
