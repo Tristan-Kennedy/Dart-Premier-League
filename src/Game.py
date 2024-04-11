@@ -40,8 +40,11 @@ class Game(QObject):
         self.leg_end = False
 #############################
         self.turn_counter = 0
+        self.turn_counter_current_player = [0, 0]
         self.total_turn_scores = 0
+        self.total_turn_scores_current_player = [0, 0]
         self.avg_score_per_turn = 0
+        self.avg_score_per_turn_current_player = 0
         self.avg_turn_score = 0
         self.num_180s = 0
         self.current_turn_score = 0
@@ -136,9 +139,12 @@ class Game(QObject):
             self.total_turn_scores += self.current_turn_score
             self.avg_score_per_turn = self.total_turn_scores / self.turn_counter
             # data to be sent to the database
+            self.turn_counter_current_player[self.current_player_index] += 1
+            self.total_turn_scores_current_player[self.current_player_index] += self.current_turn_score
+            self.avg_score_per_turn_current_player = self.total_turn_scores_current_player[self.current_player_index] / self.turn_counter_current_player[self.current_player_index]
             three_dart_avg_data = {
                 'playerID': self.players[self.current_player_index].playerID, 
-                'threeDartAvg' : self.avg_score_per_turn
+                'threeDartAvg' : self.avg_score_per_turn_current_player
                 } 
             self.update_three_dart_avg_signal.emit(three_dart_avg_data)
             if self.lowest_turn_score > self.current_turn_score:
