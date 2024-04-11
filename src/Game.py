@@ -24,6 +24,7 @@ class Game(QObject):
     update_three_dart_avg_signal = Signal(object)
     update_wins_signal = Signal(int)
     update_rank_signal = Signal()
+    update_one_eighties_signal = Signal(object)
 
     def __init__(self, players=[], starting_score=501, best_of_legs=14, best_of_matches=4, date_of_match=None, location_of_match=None, official_name=None):
         super().__init__()
@@ -153,6 +154,12 @@ class Game(QObject):
                 self.lowest_turn_score = self.current_turn_score
             if self.current_turn_score == 180:
                 self.num_180s += 1
+                # Data to be sent to the database
+                one_eighties_data = {
+                    'num_180s': self.num_180s,
+                    'playerID': self.players[self.current_player_index].playerID
+                }
+                self.update_one_eighties_signal.emit(one_eighties_data)
             self.turns = 0
             self.current_player_index = (self.current_player_index + 1) % len(self.players)
             self.turn_switch.emit()

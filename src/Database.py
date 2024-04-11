@@ -20,6 +20,7 @@ class Database:
                 profile_path TEXT NOT NULL,
                 threeDartAvg REAL,
                 threeDartAvgTracker INTEGER, 
+                numberOf180s INTEGER,
                 gamesPlayed INTEGER,
                 wins INTEGER,
                 rank INTEGER
@@ -85,18 +86,18 @@ class Database:
         conn.commit()
         conn.close()
 
-    def addOrUpdatePlayer(self, fName, lName, country, profile_path, id=None, avg=0, avgTracker=0, gamesPlayed=0, wins=0, rank=None):
+    def addOrUpdatePlayer(self, fName, lName, country, profile_path, id=None, avg=0, avgTracker=0, oneEighties=0, gamesPlayed=0, wins=0, rank=None):
         conn = sq.connect('dartsDatabase.db')
         cursor = conn.cursor()
         if id is None:
-            query = '''INSERT INTO players (firstName, lastName, country, profile_path, threeDartAvg, threeDartAvgTracker, gamesPlayed, wins)
-                        VALUES (?,?,?,?,?,?,?,?);'''
-            cursor.execute(query, (fName, lName, country, profile_path, avg, avgTracker, gamesPlayed, wins))
+            query = '''INSERT INTO players (firstName, lastName, country, profile_path, threeDartAvg, threeDartAvgTracker, numberOf180s, gamesPlayed, wins)
+                        VALUES (?,?,?,?,?,?,?,?,?);'''
+            cursor.execute(query, (fName, lName, country, profile_path, avg, avgTracker, oneEighties, gamesPlayed, wins))
         else:
             query = '''UPDATE players
-                    SET firstName=?, lastName=?, country=?, profile_path=?, threeDartAvg=?, threeDartAvgTracker=? ,gamesPlayed=?, wins=?
+                    SET firstName=?, lastName=?, country=?, profile_path=?, threeDartAvg=?, threeDartAvgTracker=?, numberOf180s=?, gamesPlayed=?, wins=?
                     WHERE playerID=?;'''
-            cursor.execute(query, (fName, lName, country, profile_path, avg, avgTracker, gamesPlayed, wins, id))
+            cursor.execute(query, (fName, lName, country, profile_path, avg, avgTracker, oneEighties, gamesPlayed, wins, id))
         conn.commit()
         conn.close()
 
@@ -258,6 +259,16 @@ class Database:
             ''', (rank, player[0]))
             rank += 1
         
+        conn.commit()
+        conn.close()
+    
+    def updateOneEighties(self, num_one_eighties, playerID):
+        conn = sq.connect('dartsDatabase.db')
+        cursor = conn.cursor()
+        query = '''UPDATE players
+                    SET numberOf180s = ?
+                    WHERE playerID = ?;'''
+        cursor.execute(query, (num_one_eighties, playerID))
         conn.commit()
         conn.close()
 

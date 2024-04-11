@@ -143,6 +143,7 @@ class Controller:
         self.game.update_three_dart_avg_signal.connect(self.handle_update_three_dart_avg)
         self.game.update_wins_signal.connect(self.handle_update_wins)
         self.game.update_rank_signal.connect(self.handle_update_rank)
+        self.game.update_one_eighties_signal.connect(self.handle_update_one_eighties)
 
         self.refresh_scoreboard()
         self.handle_turn_switch() 
@@ -203,3 +204,9 @@ class Controller:
 
     def handle_update_rank(self):
         self.database.updatePlayerRanks()
+
+    def handle_update_one_eighties(self, one_eighties_data):
+        self.database.updateOneEighties(
+            num_one_eighties = one_eighties_data['num_180s'],
+            playerID = one_eighties_data['playerID']
+        )
