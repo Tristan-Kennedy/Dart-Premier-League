@@ -18,7 +18,8 @@ class Database:
                 lastName TEXT NOT NULL,
                 country TEXT NOT NULL,
                 profile_path TEXT NOT NULL,
-                threeDartAvg REAL
+                threeDartAvg REAL,
+                gamesPlayed INTEGER
                 );'''
         )
         # Create the 'throws' table
@@ -79,16 +80,16 @@ class Database:
         conn.commit()
         conn.close()
 
-    def addOrUpdatePlayer(self, fName, lName, country, profile_path, id=None, avg=None):
+    def addOrUpdatePlayer(self, fName, lName, country, profile_path, id=None, avg=None, gamesPlayed=0):
         conn = sq.connect('dartsDatabase.db')
         cursor = conn.cursor()
         if id is None:
-            query = '''INSERT INTO players (firstName, lastName, country, profile_path)
-                        VALUES (?,?,?,?);'''
-            cursor.execute(query, (fName, lName, country, profile_path))
+            query = '''INSERT INTO players (firstName, lastName, country, profile_path, gamesPlayed)
+                        VALUES (?,?,?,?,?);'''
+            cursor.execute(query, (fName, lName, country, profile_path, gamesPlayed))
         else:
             query = '''UPDATE players
-                    SET firstName=?, lastName=?, country=?, profile_path=?
+                    SET firstName=?, lastName=?, country=?, profile_path=?, gamesPlayed=?
                     WHERE playerID=?;'''
             cursor.execute(query, (fName, lName, country, profile_path, id))
         conn.commit()
@@ -182,6 +183,17 @@ class Database:
         cursor.execute(query, (avg, playerID))
         conn.commit()
         conn.close()
+
+    def updateGamesPlayed(self, playerID):
+        conn = sq.connect('dartsDatabase.db')
+        cursor = conn.cursor()
+        # update the gamesPlayed column for the player by 1
+        query = '''UPDATE players
+                    SET gamesPlayed = gamesPlayed + 1
+                    WHERE playerID = ?;'''
+        cursor.execute(query, (playerID,))
+        conn.commit()
+
 
     
     
