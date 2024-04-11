@@ -17,7 +17,8 @@ class Database:
                 firstName TEXT NOT NULL,
                 lastName TEXT NOT NULL,
                 country TEXT NOT NULL,
-                profile_path TEXT NOT NULL
+                profile_path TEXT NOT NULL,
+                threeDartAvg REAL
                 );'''
         )
         # Create the 'throws' table
@@ -78,7 +79,7 @@ class Database:
         conn.commit()
         conn.close()
 
-    def addOrUpdatePlayer(self, fName, lName, country, profile_path, id=None):
+    def addOrUpdatePlayer(self, fName, lName, country, profile_path, id=None, avg=None):
         conn = sq.connect('dartsDatabase.db')
         cursor = conn.cursor()
         if id is None:
@@ -169,6 +170,16 @@ class Database:
         query = '''INSERT INTO legs (player1ID, player1FirstName, player1LastName, player1Score, player2ID, player2FirstName, player2LastName, player2Score, winnerID)
                     VALUES (?,?,?,?,?,?,?,?,?);'''
         cursor.execute(query, (player1ID, player1FirstName, player1LastName, player1Score, player2ID, player2FirstName, player2LastName, player2Score, winnerID))
+        conn.commit()
+        conn.close()
+    
+    def updateThreeDartAvg(self, playerID, avg):
+        conn = sq.connect('dartsDatabase.db')
+        cursor = conn.cursor()
+        query = '''UPDATE players
+                    SET threeDartAvg = ?
+                    WHERE playerID = ?;'''
+        cursor.execute(query, (avg, playerID))
         conn.commit()
         conn.close()
 

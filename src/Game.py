@@ -21,6 +21,7 @@ class Game(QObject):
     turn_switch = Signal()
     leg_complete_signal = Signal(object)
     match_complete_signal = Signal(object)
+    update_three_dart_avg_signal = Signal(object)
 
     def __init__(self, players=[], starting_score=501, best_of_legs=14, best_of_matches=4, date_of_match=None, location_of_match=None, official_name=None):
         super().__init__()
@@ -45,6 +46,7 @@ class Game(QObject):
         self.num_180s = 0
         self.current_turn_score = 0
         self.lowest_turn_score = 999
+        self.three_dart_avg = 0
 
     def on_leg_complete(self):
         # Data to be sent to the database
@@ -133,6 +135,12 @@ class Game(QObject):
             self.turn_counter += 1
             self.total_turn_scores += self.current_turn_score
             self.avg_score_per_turn = self.total_turn_scores / self.turn_counter
+            # data to be sent to the database
+            three_dart_avg_data = {
+                'playerID': self.players[self.current_player_index].playerID, 
+                'threeDartAvg' : self.avg_score_per_turn
+                } 
+            self.update_three_dart_avg_signal.emit(three_dart_avg_data)
             if self.lowest_turn_score > self.current_turn_score:
                 self.lowest_turn_score = self.current_turn_score
             if self.current_turn_score == 180:
@@ -173,3 +181,4 @@ class Game(QObject):
     
     def bounceout(self): #score doesn't update 
         self.update_score(0, 0) #maybe add a visual indicator that the dart did not stick to the board
+

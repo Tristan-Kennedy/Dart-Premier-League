@@ -137,7 +137,7 @@ class Controller:
         self.database.addGame(player1_id, player2_id, date_of_match, location_of_match, official_name, best_of_legs, best_of_matches)
         self.game.leg_complete_signal.connect(self.handle_update_leg_DB)
         self.game.match_complete_signal.connect(self.handle_update_match_DB)
-
+        self.game.update_three_dart_avg_signal.connect(self.handle_update_three_dart_avg)
 
         self.refresh_scoreboard()
         self.handle_turn_switch() 
@@ -181,4 +181,10 @@ class Controller:
             player2LastName=match_data['opponentLName'],
             player2LegsWon=match_data['oppLegsWon'],
             winnerID=match_data['winnerID']
+        )
+    
+    def handle_update_three_dart_avg(self, three_dart_data):
+        self.database.updateThreeDartAvg(
+            playerID = three_dart_data['playerID'],
+            avg = three_dart_data['threeDartAvg']
         )
