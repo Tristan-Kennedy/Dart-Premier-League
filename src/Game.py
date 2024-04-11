@@ -19,6 +19,8 @@ class Player:
 class Game(QObject):
     game_end = Signal()
     turn_switch = Signal()
+    leg_complete_signal = Signal(object)
+    match_complete_signal = Signal(object)
 
     def __init__(self, players=[], starting_score=501, best_of_legs=14, best_of_matches=4, date_of_match=None, location_of_match=None, official_name=None):
         super().__init__()
@@ -45,6 +47,19 @@ class Game(QObject):
         self.lowest_turn_score = 999
 
     def on_leg_complete(self):
+        # Data to be sent to the database
+        DB_leg_data = {
+            'playerID': self.players[self.current_player_index].playerID,
+            'fName': self.players[self.current_player_index].fName,
+            'lName': self.players[self.current_player_index].lName,
+            'player1Score': self.players[self.current_player_index].score,
+            'opponentID': self.players[1 - self.current_player_index].playerID,
+            'opponentFName': self.players[1 - self.current_player_index].fName,
+            'opponentLName': self.players[1 - self.current_player_index].lName,
+            'oppScore': self.players[1 - self.current_player_index].score,
+            'winnerID': self.players[self.current_player_index].playerID
+        }
+        self.leg_complete_signal.emit(DB_leg_data)
         for player in self.players:
             player.score = self.starting_score
             player.previous_score = self.starting_score
@@ -53,6 +68,19 @@ class Game(QObject):
         self.leg_end = True
 
     def on_match_complete(self):
+        # Data to be sent to the database
+        DB_match_data = {
+            'player1ID': self.players[self.current_player_index].playerID,
+            'fName': self.players[self.current_player_index].fName,
+            'lName': self.players[self.current_player_index].lName,
+            'legs_won': self.players[self.current_player_index].legs_won,
+            'opponentID': self.players[1-self.current_player_index].playerID,
+            'opponentFName': self.players[1-self.current_player_index].fName,
+            'opponentLName': self.players[1-self.current_player_index].lName,
+            'oppLegsWon': self.players[1-self.current_player_index].legs_won,
+            'winnerID': self.players[self.current_player_index].playerID
+        }
+        self.match_complete_signal.emit(DB_match_data)
         for player in self.players:
             player.legs_won = 0
             player.total_throws = 0 #reset the number of darts thrown

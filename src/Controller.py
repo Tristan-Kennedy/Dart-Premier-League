@@ -54,7 +54,7 @@ class Controller:
         self.refresh_scoreboard()
         self.refresh_jumbotron_dartboard()
         self.refresh_game_stats_board()
-        self.database.addThrow(multiplier, wedge_value, self.game.players[self.game.current_player_index].playerID)
+        self.database.addThrow(multiplier, wedge_value, self.game.players[self.game.current_player_index].playerID, self.game.players[self.game.current_player_index].fName, self.game.players[self.game.current_player_index].lName, self.game.location_of_match, self.game.date_of_match)
 
     def handle_turn_switch(self):
         self.scorekeeper_ui.dartboard.clear_clicked_points()
@@ -135,9 +135,13 @@ class Controller:
         self.game.turn_switch.connect(self.handle_turn_switch)
 
         self.database.addGame(player1_id, player2_id, date_of_match, location_of_match, official_name, best_of_legs, best_of_matches)
+        self.game.leg_complete_signal.connect(self.handle_update_leg_DB)
+        self.game.match_complete_signal.connect(self.handle_update_match_DB)
+
 
         self.refresh_scoreboard()
-        self.handle_turn_switch()
+        self.handle_turn_switch() 
+
 
     def handle_display_player_stats(self, p_visibility):
         self.player_stats_window.set_visibility(p_visibility)
@@ -151,3 +155,30 @@ class Controller:
 
     def handle_show_leaderboard(self):
         self.jumbotron_ui.enable_leaderboard()
+
+    def handle_update_leg_DB(self, leg_data):
+        # Unpack the dictionary to pass as separate arguments
+        self.database.addLeg(
+            player1ID=leg_data['playerID'],
+            player1FirstName=leg_data['fName'],
+            player1LastName=leg_data['lName'],
+            player1Score=leg_data['player1Score'],
+            player2ID=leg_data['opponentID'],
+            player2FirstName=leg_data['opponentFName'],
+            player2LastName=leg_data['opponentLName'],
+            player2Score=leg_data['oppScore'],
+            winnerID=leg_data['winnerID']
+        )
+
+    def handle_update_match_DB(self, match_data):
+        self.database.addMatch(
+            player1ID=match_data['player1ID'],
+            player1FirstName=match_data['fName'],
+            player1LastName=match_data['lName'],
+            player1LegsWon=match_data['legs_won'],
+            player2ID=match_data['opponentID'],
+            player2FirstName=match_data['opponentFName'],
+            player2LastName=match_data['opponentLName'],
+            player2LegsWon=match_data['oppLegsWon'],
+            winnerID=match_data['winnerID']
+        )

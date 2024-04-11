@@ -25,9 +25,11 @@ class Database:
             '''CREATE TABLE IF NOT EXISTS throws(
                 throwID INTEGER PRIMARY KEY,
                 points INTEGER,
-                legID INTEGER,
-                gameID INTEGER,
-                playerID INTEGER SECONDARY KEY
+                playerFirstName TEXT,
+                playerLastName TEXT,
+                location TEXT,
+                date TEXT,
+                playerID INTEGER SECONDARY KEY                
             );'''
         )
         # Create the 'games' table
@@ -41,6 +43,36 @@ class Database:
                 officialName TEXT,
                 bestOfLegs INTEGER,
                 bestOfMatches INTEGER
+            );'''
+        )
+        # Create the 'legs' table
+        cursor.execute(
+            '''CREATE TABLE IF NOT EXISTS legs(
+                legID INTEGER PRIMARY KEY,
+                player1ID INTEGER,
+                player1FirstName TEXT,
+                player1LastName TEXT,
+                player1Score INTEGER,
+                player2ID INTEGER,
+                player2FirstName TEXT,
+                player2LastName TEXT,
+                player2Score INTEGER,
+                winnerID INTEGER
+            );'''
+        )
+        # Create the 'matches' table
+        cursor.execute(
+            '''CREATE TABLE IF NOT EXISTS matches(
+                matchID INTEGER PRIMARY KEY,
+                player1ID INTEGER,
+                player1FirstName TEXT,
+                player1LastName TEXT,
+                player1LegsWon INTEGER,
+                player2ID INTEGER,
+                player2FirstName TEXT,
+                player2LastName TEXT,
+                player2LegsWon INTEGER,
+                winnerID INTEGER
             );'''
         )
         conn.commit()
@@ -103,13 +135,13 @@ class Database:
         else:
             return False
 
-    def addThrow(self, multiplier, wedge_value, playerID):
+    def addThrow(self, multiplier, wedge_value, playerID, playerFirstName, playerLastName, location, date):
         conn = sq.connect('dartsDatabase.db')
         cursor = conn.cursor()
         points = multiplier * wedge_value
-        query = '''INSERT INTO throws (points, playerID)
-                    VALUES (?,?);'''
-        cursor.execute(query, (points, playerID))
+        query = '''INSERT INTO throws (points, playerID, playerFirstName, playerLastName, location, date)
+                    VALUES (?,?,?,?,?,?);'''
+        cursor.execute(query, (points, playerID, playerFirstName, playerLastName, location, date))
         conn.commit()
         conn.close()
 
@@ -121,7 +153,24 @@ class Database:
         cursor.execute(query, (player1ID, player2ID, date, location, officialName, bestOfLegs, bestOfMatches))
         conn.commit()
         conn.close()
+    
+    def addMatch(self, player1ID, player1FirstName, player1LastName, player1LegsWon, player2ID, player2FirstName, player2LastName, player2LegsWon, winnerID):
+        conn = sq.connect('dartsDatabase.db')
+        cursor = conn.cursor()
+        query = '''INSERT INTO matches (player1ID, player1FirstName, player1LastName, player1LegsWon, player2ID, player2FirstName, player2LastName, player2LegsWon, winnerID)
+                    VALUES (?,?,?,?,?,?,?,?,?);'''
+        cursor.execute(query, (player1ID, player1FirstName, player1LastName, player1LegsWon, player2ID, player2FirstName, player2LastName, player2LegsWon, winnerID))
+        conn.commit()
+        conn.close()
 
+    def addLeg(self, player1ID, player1FirstName, player1LastName, player1Score, player2ID, player2FirstName, player2LastName, player2Score, winnerID):
+        conn = sq.connect('dartsDatabase.db')
+        cursor = conn.cursor()
+        query = '''INSERT INTO legs (player1ID, player1FirstName, player1LastName, player1Score, player2ID, player2FirstName, player2LastName, player2Score, winnerID)
+                    VALUES (?,?,?,?,?,?,?,?,?);'''
+        cursor.execute(query, (player1ID, player1FirstName, player1LastName, player1Score, player2ID, player2FirstName, player2LastName, player2Score, winnerID))
+        conn.commit()
+        conn.close()
 
     
     
