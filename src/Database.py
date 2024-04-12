@@ -193,10 +193,10 @@ class Database:
         if result:
             current_avg, count = result
             # Calculate the new average
-            if (count > 0)and (current_avg > 0) :  # Ensure there is at least one previous average to avoid division by zero
-                updated_avg = ((current_avg * count) + new_avg) / count
+            if count > 0 and current_avg > 0:  # Ensure count is already incremented
+                updated_avg = ((current_avg * (count - 1)) + new_avg) / count
             else:
-                updated_avg = new_avg
+                updated_avg = new_avg  # This should only apply if count is 1 and it's the first entry
 
             # Update the new average in the database
             cursor.execute('''
