@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QMainWindow, QLabel, QGridLayout, QWidget
-from PySide6.QtGui import QFont, QColor, QLinearGradient
+from PySide6.QtGui import QFont
 from PySide6.QtCore import Qt
 
 class GameStatisticsWindow(QMainWindow):

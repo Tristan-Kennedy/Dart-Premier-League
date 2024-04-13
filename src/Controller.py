@@ -150,7 +150,8 @@ class Controller:
 
 
     def handle_display_player_stats(self, p_visibility):
-        self.player_stats_window.set_visibility(p_visibility)
+        current_player_stats = self.database.get_player(self.game.players[self.game.current_player_index].playerID)
+        self.player_stats_window.set_visibility(p_visibility, current_player_stats)
 
     def handle_display_game_stats(self, g_visibility):
         self.game_stats_window.set_visibility(g_visibility)
