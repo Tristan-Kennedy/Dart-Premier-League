@@ -24,40 +24,25 @@ class Leaderboard(QMainWindow):
         self.setPalette(p)
 
         # Header labels
-        header_labels = ["Rank", "Player", "Total Games Played", "Average Turns to Win"]
+        header_labels = ["Rank", "Player", "Total Games Played", "Total Wins"]
         for col, label_text in enumerate(header_labels):
             label = QLabel(label_text)
             label.setStyleSheet("QLabel { border: 1px solid black; padding: 5px; background-color: white; font: bold 20px}")
             self.layout.addWidget(label, 0, col)
 
-        # Mock data for top 10 players
-        top_players = [
-            {"name": "Player 1", "games_played": 10, "avg_turns": 12},
-            {"name": "Player 2", "games_played": 8, "avg_turns": 15},
-            {"name": "Player 3", "games_played": 12, "avg_turns": 11},
-            {"name": "Player 4", "games_played": 15, "avg_turns": 10},
-            {"name": "Player 5", "games_played": 9, "avg_turns": 14},
-            {"name": "Player 6", "games_played": 11, "avg_turns": 13},
-            {"name": "Player 7", "games_played": 13, "avg_turns": 10},
-            {"name": "Player 8", "games_played": 7, "avg_turns": 16},
-            {"name": "Player 9", "games_played": 14, "avg_turns": 9},
-            {"name": "Player 10", "games_played": 10, "avg_turns": 12}
-        ]
+    def populate_leaderboard(self, players):
+        # Sort players by rank
+        players.sort(key=lambda x: x[9], reverse=False)
 
-        # Populate leaderboard with mock data
-        for row, player in enumerate(top_players, start=1):
-            rank_label = QLabel(str(row))
-            rank_label.setStyleSheet("QLabel { border: 1px solid black; padding: 5px; background-color: white; font: 16px;}")
-            self.layout.addWidget(rank_label, row, 0)
-            
-            name_label = QLabel(player["name"])
-            name_label.setStyleSheet("QLabel { border: 1px solid black; padding: 5px; background-color: white; font: 16px; }")
-            self.layout.addWidget(name_label, row, 1)
-            
-            games_played_label = QLabel(str(player["games_played"]))
-            games_played_label.setStyleSheet("QLabel { border: 1px solid black; padding: 5px; background-color: white; font: 16px; }")
-            self.layout.addWidget(games_played_label, row, 2)
-            
-            avg_turns_label = QLabel(str(player["avg_turns"]))
-            avg_turns_label.setStyleSheet("QLabel { border: 1px solid black; padding: 5px; background-color: white; font: 16px; }")
-            self.layout.addWidget(avg_turns_label, row, 3)
+        # Populate leaderboard with player data or ---
+        for row in range(10):
+            if row < len(players):
+                player = players[row]
+                data = [str(row+1), str(player[1] + ' ' + player[2]), str(player[8]), str(player[9])]  # Assuming player name, games played, average turns are at index 0, 1, 2
+            else:
+                data = ['---', '---', '---', '---']
+
+            for col, item in enumerate(data):
+                label = QLabel(str(item))
+                label.setStyleSheet("QLabel { border: 1px solid black; padding: 5px; background-color: white; font: 16px; }")
+                self.layout.addWidget(label, row+1, col)

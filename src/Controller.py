@@ -160,6 +160,7 @@ class Controller:
         self.scorekeeper_ui.hide()
 
     def handle_show_leaderboard(self):
+        self.jumbotron_ui.leaderboard.populate_leaderboard(self.database.get_all_players())
         self.jumbotron_ui.enable_leaderboard()
 
     def handle_update_leg_DB(self, leg_data):
