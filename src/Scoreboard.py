@@ -97,11 +97,8 @@ class Scoreboard(QWidget):
             # Create a horizontal layout for each player (row)
             row_layout = QHBoxLayout()
 
-            # Create labels for each data field (cell)
-            if player.total_throws + len(self.throws_to_win(player.score)) <= len(self.throws_to_win(player.starting_score)) and player.total_throws != 0:
-                player_label = QLabel(f"🔥{player.fName} {player.lName}🔥")
-            else:
-                player_label = QLabel(f"{player.fName} {player.lName}")
+            player_label = QLabel(f"{player.fName} {player.lName}")
+            perfect_score_label = QLabel()
             ttw_label = QLabel()
             matches_won_label = QLabel(str(player.matches_won))
             legs_won_label = QLabel(str(player.legs_won))
@@ -132,6 +129,14 @@ class Scoreboard(QWidget):
 
             # Add labels to the row layout
             row_layout.addWidget(player_label)
+
+            # On track for perfect leg
+            if player.total_throws + len(self.throws_to_win(player.score)) <= len(self.throws_to_win(player.starting_score)) and player.total_throws != 0:
+                perfect_score_label.setText(f"{len(self.throws_to_win(player.starting_score))}")
+                perfect_score_label.setStyleSheet("background-color: yellow; color: black; border: 1px solid black; padding: 5px; font: bold 14px")
+                perfect_score_label.setFixedWidth(50)
+                row_layout.addWidget(perfect_score_label)
+
             # Create a label for throws to win
             if player.score <= 170:
                 ttw = self.throws_to_win(player.score)
@@ -139,16 +144,15 @@ class Scoreboard(QWidget):
                 ttw_label.setText(ttw_text)
                 ttw_label.setStyleSheet("background-color: green; color: white; border: 1px solid black; padding: 5px; font: bold 14px")
                 row_layout.addWidget(ttw_label)
-            
+
             row_layout.addWidget(matches_won_label)
             row_layout.addWidget(legs_won_label)
             row_layout.addWidget(score_label)
-
             # Add the row layout to the main layout
             self.layout.addLayout(row_layout)
 
             # Store the labels for later updates
-            self.scoreLabels.append([player_label, ttw_label, matches_won_label, legs_won_label, score_label])
+            self.scoreLabels.append([player_label, perfect_score_label, ttw_label, matches_won_label, legs_won_label, score_label])
 
         # Add the footer layout to the main layout
         self.layout.addLayout(self.footer_layout)

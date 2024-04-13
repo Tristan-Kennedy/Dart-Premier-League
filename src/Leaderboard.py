@@ -32,7 +32,7 @@ class Leaderboard(QMainWindow):
 
     def populate_leaderboard(self, players):
         # Sort players by rank
-        players.sort(key=lambda x: x[9], reverse=False)
+        players.sort(key=lambda x: x[10], reverse=False)
 
         # Populate leaderboard with player data or ---
         for row in range(10):
